@@ -4,7 +4,10 @@
 
 namespace engine::core
 {
-    GameApp::GameApp() = default;
+    GameApp::GameApp()
+    {
+        time_ = std::make_unique<Time>();
+    };
 
     GameApp::~GameApp()
     {
@@ -22,12 +25,18 @@ namespace engine::core
             spdlog::error("GameApp Init Failed, cannot run the game");
             return;
         }
+        time_->setTargetFps(144); // 将来会从配置文件读取
+
         while (is_running_)
         {
-            float delta_time = 0.01f;
+            time_->update();
+            float delta_time = time_->getDeltaTime();
+
             handleEvents();
             update(delta_time);
             render();
+
+            spdlog::info("delta_time: {}", delta_time);
         }
 
         close();
