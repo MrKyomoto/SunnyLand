@@ -1,5 +1,6 @@
 #include "time.h"
 #include <spdlog/spdlog.h>
+#include <SDL3/SDL_timer.h>
 
 namespace engine::core
 {

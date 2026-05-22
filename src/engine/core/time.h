@@ -1,5 +1,5 @@
 #pragma once
-#include <SDL3/SDL.h>
+#include <SDL3/SDL_stdinc.h>
 
 namespace engine::core
 {
@@ -9,7 +9,7 @@ namespace engine::core
      * 使用SDL的高精度性能计数器确保时间测量的准确性
      * 提供获取缩放和未缩放Δt的方法,以及设置时间缩放因子的能力
      */
-    class Time
+    class Time final
     {
     private:
         Uint64 last_time_ = 0;        ///< @brief 上一帧的时间戳(用于计算Δ)
@@ -23,6 +23,11 @@ namespace engine::core
 
     public:
         Time();
+
+        Time(const Time &) = delete;
+        Time &operator=(const Time &) = delete;
+        Time(const Time &&) = delete;
+        Time &operator=(const Time &&) = delete;
 
         /**
          * @brief 每帧开始时调用,更新内部时间状态并计算Δt
