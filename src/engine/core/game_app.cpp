@@ -1,13 +1,12 @@
 #include "game_app.h"
 #include <SDL3/SDL.h>
 #include <spdlog/spdlog.h>
+#include "time.h"
+#include "../resource/resource_manager.h"
 
 namespace engine::core
 {
-    GameApp::GameApp()
-    {
-        time_ = std::make_unique<Time>();
-    };
+    GameApp::GameApp() = default;
 
     GameApp::~GameApp()
     {
@@ -36,7 +35,7 @@ namespace engine::core
             update(delta_time);
             render();
 
-            spdlog::info("delta_time: {}", delta_time);
+            // spdlog::info("delta_time: {}", delta_time);
         }
 
         close();
@@ -45,29 +44,18 @@ namespace engine::core
     bool GameApp::init()
     {
         spdlog::trace("Init GameApp...");
-        if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO))
-        {
-            spdlog::error("SDL_Init failed, SDL Error: {}", SDL_GetError());
+
+        if (!initSDL())
             return false;
-        }
-
-        window_ = SDL_CreateWindow("SunnyLand", 1280, 720, SDL_WINDOW_RESIZABLE);
-
-        if (window_ == nullptr)
-        {
-            spdlog::error("SDL_CreateWindow failed, SDL Error: {}", SDL_GetError());
+        if (!initTime())
             return false;
-        }
-
-        sdl_renderer_ = SDL_CreateRenderer(window_, nullptr);
-
-        if (sdl_renderer_ == nullptr)
-        {
-            spdlog::error("SDL_CreateRenderer failed, SDL Error: {}", SDL_GetError());
+        if (!initResourceManager())
             return false;
-        }
+
+        testResourceManager();
 
         is_running_ = true;
+        spdlog::trace("Init GameApp success");
         return true;
     }
     void GameApp::handleEvents()
@@ -107,6 +95,75 @@ namespace engine::core
         }
         SDL_Quit();
         is_running_ = false;
+    }
+
+    bool GameApp::initSDL()
+    {
+        if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO))
+        {
+            spdlog::error("SDL_Init failed, SDL Error: {}", SDL_GetError());
+            return false;
+        }
+
+        window_ = SDL_CreateWindow("SunnyLand", 1280, 720, SDL_WINDOW_RESIZABLE);
+
+        if (window_ == nullptr)
+        {
+            spdlog::error("SDL_CreateWindow failed, SDL Error: {}", SDL_GetError());
+            return false;
+        }
+
+        sdl_renderer_ = SDL_CreateRenderer(window_, nullptr);
+
+        if (sdl_renderer_ == nullptr)
+        {
+            spdlog::error("SDL_CreateRenderer failed, SDL Error: {}", SDL_GetError());
+            return false;
+        }
+
+        spdlog::trace("SDL初始化成功");
+        return true;
+    }
+
+    bool GameApp::initTime()
+    {
+        try
+        {
+            time_ = std::make_unique<Time>();
+        }
+        catch (const std::exception &e)
+        {
+            spdlog::error("初始化时间管理失败: {}", e.what());
+            return false;
+        }
+        spdlog::trace("时间管理初始化成功");
+        return true;
+    }
+
+    bool GameApp::initResourceManager()
+    {
+        try
+        {
+            resource_manager_ = std::make_unique<engine::resource::ResourceManager>(sdl_renderer_);
+        }
+        catch (const std::exception &e)
+        {
+            spdlog::error("初始化资源管理失败: {}", e.what());
+            return false;
+        }
+        spdlog::trace("资源管理初始化成功");
+        return true;
+    }
+
+    void GameApp::testResourceManager()
+    {
+        resource_manager_->getTexture("assets/textures/Actors/eagle-attack.png");
+        resource_manager_->getFont("assets/fonts/VonwaonBitmap-16px.ttf", 16);
+        resource_manager_->getShortAudio("assets/audio/button_click.wav");
+
+        resource_manager_->unloadTexture("assets/textures/Actors/eagle-attack.png");
+        resource_manager_->unloadFont("assets/fonts/VonwaonBitmap-16px.ttf", 16);
+        resource_manager_->unloadShortAudio("assets/audio/button_click.wav");
     }
 
 } // engine::core

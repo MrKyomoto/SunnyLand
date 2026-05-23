@@ -1,12 +1,17 @@
-#include "time.h"
 #include <memory>
 
 // NOTE: 前向声明,减少头文件依赖,增加编译速度
 struct SDL_Window;
 struct SDL_Renderer;
 
+namespace engine::resource
+{
+    class ResourceManager;
+}
+
 namespace engine::core
 {
+    class Time;
     /**
      * @brief 主游戏应用程序类,初始化SDL,管理游戏循环
      */
@@ -19,6 +24,7 @@ namespace engine::core
 
         // 引擎组件
         std::unique_ptr<engine::core::Time> time_;
+        std::unique_ptr<engine::resource::ResourceManager> resource_manager_;
 
     public:
         GameApp();
@@ -41,5 +47,11 @@ namespace engine::core
         void update(float delta_time);
         void render();
         void close();
+
+        bool initSDL();
+        bool initTime();
+        bool initResourceManager();
+
+        void testResourceManager();
     };
 }
