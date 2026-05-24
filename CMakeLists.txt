@@ -42,6 +42,7 @@ add_executable(${TARGET}
                     src/engine/render/sprite.h
                     src/engine/utils/math.h
                     src/engine/core/config.cpp
+                    src/engine/input/input_manager.cpp
                                 )
 
 # 链接库
