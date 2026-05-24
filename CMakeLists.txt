@@ -43,6 +43,8 @@ add_executable(${TARGET}
                     src/engine/utils/math.h
                     src/engine/core/config.cpp
                     src/engine/input/input_manager.cpp
+                    src/engine/component/component.h
+                    src/engine/object/game_object.cpp
                                 )
 
 # 链接库

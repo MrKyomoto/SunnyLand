@@ -76,5 +76,6 @@ namespace engine::core
         void testRenderer();
         void testCamera();
         void testInputManager();
+        void testGameObject();
     };
 }
