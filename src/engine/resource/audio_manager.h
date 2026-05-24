@@ -31,16 +31,6 @@ namespace engine::resource
             }
         };
 
-        struct SDLMixTrackDeleter
-        {
-            void operator()(MIX_Track *track) const
-            {
-                if (track)
-                {
-                    MIX_DestroyTrack(track);
-                }
-            }
-        };
         std::unordered_map<string, std::unique_ptr<MIX_Audio, SDLMixAudioDeleter>> long_audios_;
         std::unordered_map<string, std::unique_ptr<MIX_Audio, SDLMixAudioDeleter>> short_audios_;
         MIX_Mixer *mixer_;
