@@ -9,6 +9,12 @@ namespace engine::resource
     class ResourceManager;
 }
 
+namespace engine::render
+{
+    class Renderer;
+    class Camera;
+}
+
 namespace engine::core
 {
     class Time;
@@ -25,6 +31,8 @@ namespace engine::core
         // 引擎组件
         std::unique_ptr<engine::core::Time> time_;
         std::unique_ptr<engine::resource::ResourceManager> resource_manager_;
+        std::unique_ptr<engine::render::Renderer> renderer_;
+        std::unique_ptr<engine::render::Camera> camera_;
 
     public:
         GameApp();
@@ -48,10 +56,14 @@ namespace engine::core
         void render();
         void close();
 
-        bool initSDL();
-        bool initTime();
-        bool initResourceManager();
+        [[nodiscard]] bool initSDL();
+        [[nodiscard]] bool initTime();
+        [[nodiscard]] bool initResourceManager();
+        [[nodiscard]] bool initRenderer();
+        [[nodiscard]] bool initCamera();
 
         void testResourceManager();
+        void testRenderer();
+        void testCamera();
     };
 }

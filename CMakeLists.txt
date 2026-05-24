@@ -37,6 +37,10 @@ add_executable(${TARGET}
                     src/engine/resource/audio_manager.cpp
                     src/engine/resource/font_manager.cpp
                     src/engine/resource/texture_manager.cpp
+                    src/engine/render/camera.cpp
+                    src/engine/render/renderer.cpp
+                    src/engine/render/sprite.h
+                    src/engine/utils/math.h
                                 )
 
 # 链接库
