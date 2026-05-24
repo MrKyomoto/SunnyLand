@@ -6,6 +6,11 @@
 #include <utility>   // 用于完美转发
 #include <spdlog/spdlog.h>
 
+namespace engine::core
+{
+    class Context;
+} // namespace engine::core
+
 namespace engine::object
 {
 
@@ -103,16 +108,17 @@ namespace engine::object
 
             auto type_index = std::type_index(typeid(T));
             auto it = components_.find(type_index);
-            if(it != components_.end()){
+            if (it != components_.end())
+            {
                 it->second->clean();
                 components_.erase(it);
             }
         }
 
-        void update(float delta_time);
-        void render();
+        void update(float delta_time, engine::core::Context &context);
+        void render(engine::core::Context &context);
         void clean();
-        void handleInput();
+        void handleInput(engine::core::Context &context);
     };
 
 } // namespace engine::object
