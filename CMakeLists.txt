@@ -41,6 +41,7 @@ add_executable(${TARGET}
                     src/engine/render/renderer.cpp
                     src/engine/render/sprite.h
                     src/engine/utils/math.h
+                    src/engine/core/config.cpp
                                 )
 
 # 链接库

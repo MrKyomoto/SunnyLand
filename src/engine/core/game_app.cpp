@@ -5,6 +5,7 @@
 #include "../resource/resource_manager.h"
 #include "../render/renderer.h"
 #include "../render/camera.h"
+#include "config.h"
 
 namespace engine::core
 {
@@ -26,7 +27,6 @@ namespace engine::core
             spdlog::error("GameApp Init Failed, cannot run the game");
             return;
         }
-        time_->setTargetFps(144); // 将来会从配置文件读取
 
         while (is_running_)
         {
@@ -47,6 +47,8 @@ namespace engine::core
     {
         spdlog::trace("Init GameApp...");
 
+        if (!initConfig())
+            return false;
         if (!initSDL())
             return false;
         if (!initTime())
@@ -110,6 +112,20 @@ namespace engine::core
         is_running_ = false;
     }
 
+    bool GameApp::initConfig()
+    {
+        try
+        {
+            config_ = std::make_unique<engine::core::Config>("assets/config.json");
+        }
+        catch (const std::exception &e)
+        {
+            spdlog::error("初始化Config失败: {}", e.what());
+        }
+        spdlog::trace("Config初始化成功");
+        return true;
+    }
+
     bool GameApp::initSDL()
     {
         if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO))
@@ -118,7 +134,7 @@ namespace engine::core
             return false;
         }
 
-        window_ = SDL_CreateWindow("SunnyLand", 1280, 720, SDL_WINDOW_RESIZABLE);
+        window_ = SDL_CreateWindow("SunnyLand", config_->window_width_, config_->window_height_, SDL_WINDOW_RESIZABLE);
 
         if (window_ == nullptr)
         {
@@ -134,8 +150,13 @@ namespace engine::core
             return false;
         }
 
-        // 设置逻辑分辨率,视口大小应该与这个一致
-        SDL_SetRenderLogicalPresentation(sdl_renderer_, 640, 360, SDL_LOGICAL_PRESENTATION_LETTERBOX);
+        // 设置 VSync (开启时,驱动程序会尝试将帧率限制到显示器刷新率,有可能会覆盖我们手动设置的target_fps)
+        int vsync_mode = config_->vsync_enabled_ ? SDL_RENDERER_VSYNC_ADAPTIVE : SDL_RENDERER_VSYNC_DISABLED;
+        SDL_SetRenderVSync(sdl_renderer_, vsync_mode);
+        spdlog::trace("VSync 设置为: {}", config_->vsync_enabled_ ? "Enabled" : "Disabled");
+
+        // 设置逻辑分辨率,视口大小应该与这个一致(针对像素游戏,逻辑分辨率设置为窗口大小的一半, 设成一半的原因是内部只渲染1/4的像素量,计算量小,同时每个原始像素对应4个屏幕像素,像素边缘锐利,不会出现半像素模糊,锯齿发虚等问题)
+        SDL_SetRenderLogicalPresentation(sdl_renderer_, config_->window_width_ / 2, config_->window_height_ / 2, SDL_LOGICAL_PRESENTATION_LETTERBOX);
         spdlog::trace("SDL初始化成功");
         return true;
     }
@@ -151,6 +172,7 @@ namespace engine::core
             spdlog::error("初始化时间管理失败: {}", e.what());
             return false;
         }
+        time_->setTargetFps(config_->target_fps_);
         spdlog::trace("时间管理初始化成功");
         return true;
     }
@@ -189,7 +211,7 @@ namespace engine::core
     {
         try
         {
-            camera_ = std::make_unique<engine::render::Camera>(glm::vec2(640, 360));
+            camera_ = std::make_unique<engine::render::Camera>(glm::vec2(config_->window_width_ / 2, config_->window_height_ / 2));
         }
         catch (const std::exception &e)
         {

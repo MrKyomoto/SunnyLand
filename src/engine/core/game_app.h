@@ -18,6 +18,7 @@ namespace engine::render
 namespace engine::core
 {
     class Time;
+    class Config;
     /**
      * @brief 主游戏应用程序类,初始化SDL,管理游戏循环
      */
@@ -33,6 +34,7 @@ namespace engine::core
         std::unique_ptr<engine::resource::ResourceManager> resource_manager_;
         std::unique_ptr<engine::render::Renderer> renderer_;
         std::unique_ptr<engine::render::Camera> camera_;
+        std::unique_ptr<engine::core::Config> config_;
 
     public:
         GameApp();
@@ -56,6 +58,7 @@ namespace engine::core
         void render();
         void close();
 
+        [[nodiscard]] bool initConfig();
         [[nodiscard]] bool initSDL();
         [[nodiscard]] bool initTime();
         [[nodiscard]] bool initResourceManager();
