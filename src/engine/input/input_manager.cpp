@@ -108,8 +108,8 @@ namespace engine::input
             bool is_down = event.key.down;
             bool is_repeat = event.key.repeat;
 
-            auto it = scancode_to_actions_map_.find(scancode);
-            if (it != scancode_to_actions_map_.end())
+            auto it = input_to_actions_map_.find(scancode);
+            if (it != input_to_actions_map_.end())
             {
                 const vector<string> &associated_actions = it->second;
                 for (const string &action_name : associated_actions)
@@ -125,8 +125,8 @@ namespace engine::input
             Uint32 button = event.button.button;
             bool is_down = event.button.down;
 
-            auto it = mouse_button_to_actions_map_.find(button);
-            if (it != mouse_button_to_actions_map_.end())
+            auto it = input_to_actions_map_.find(button);
+            if (it != input_to_actions_map_.end())
             {
                 const vector<string> &associated_actions = it->second;
                 for (const string &action_name : associated_actions)
@@ -166,8 +166,7 @@ namespace engine::input
 
         // 动作 -> 按键名称
         actions_to_keyname_map_ = config->input_mappings_;
-        scancode_to_actions_map_.clear();
-        mouse_button_to_actions_map_.clear();
+        input_to_actions_map_.clear();
         action_states_.clear();
 
         if (actions_to_keyname_map_.find("MouseLeftClick") == actions_to_keyname_map_.end())
@@ -196,12 +195,12 @@ namespace engine::input
 
                 if (scancode != SDL_SCANCODE_UNKNOWN)
                 {
-                    scancode_to_actions_map_[scancode].push_back(action_name);
+                    input_to_actions_map_[scancode].push_back(action_name);
                     spdlog::trace("映射按键: {} (Scancode: {}) 到动作: {}", key_name, static_cast<int>(scancode), action_name);
                 }
                 else if (mouse_button != 0)
                 {
-                    mouse_button_to_actions_map_[mouse_button].push_back(action_name);
+                    input_to_actions_map_[mouse_button].push_back(action_name);
                     spdlog::trace("映射鼠标按键: {} (Scancode: {}) 到动作: {}", key_name, static_cast<int>(mouse_button), action_name);
                 }
                 else

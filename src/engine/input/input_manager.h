@@ -4,6 +4,7 @@
 #include <vector>
 #include <SDL3/SDL_render.h>
 #include <glm/vec2.hpp>
+#include <variant>
 
 namespace engine::core
 {
@@ -14,6 +15,7 @@ namespace engine::input
 {
     using std::string;
     using std::unordered_map;
+    using std::variant;
     using std::vector;
     enum class ActionState
     {
@@ -28,8 +30,7 @@ namespace engine::input
     private:
         SDL_Renderer *sdl_renderer_;
         unordered_map<string, vector<string>> actions_to_keyname_map_;
-        unordered_map<SDL_Scancode, vector<string>> scancode_to_actions_map_;
-        unordered_map<Uint32, vector<string>> mouse_button_to_actions_map_;
+        unordered_map<variant<SDL_Scancode, Uint32>, vector<string>> input_to_actions_map_;
 
         unordered_map<string, ActionState> action_states_;
 
