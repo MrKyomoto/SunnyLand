@@ -5,10 +5,6 @@
 #include <string>
 #include <unordered_map>
 #include <utility> // std::pair
-<<<<<<< HEAD
-
-=======
->>>>>>> linux
 
 #include <SDL3_ttf/SDL_ttf.h>
 

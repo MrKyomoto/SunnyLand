@@ -8,7 +8,9 @@
 #include "../render/renderer.h"
 #include "../resource/resource_manager.h"
 #include "../scene/scene_manager.h"
+#include "../core/config.h"
 #include "context.h"
+#include "time.h"
 #include <SDL3/SDL.h>
 #include <memory>
 #include <spdlog/spdlog.h>
