@@ -2,3 +2,4 @@
 *.pdb
 build/
 .vscode/
+.cache/
