@@ -3,7 +3,6 @@
 #include <nlohmann/json.hpp>
 #include <spdlog/spdlog.h>
 
-
 namespace engine::core {
 Config::Config(const string &file_path) { loadFromFile(file_path); }
 bool Config::loadFromFile(const string &file_path) {

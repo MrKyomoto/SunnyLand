@@ -6,7 +6,6 @@
 #include <variant>
 #include <vector>
 
-
 namespace engine::core {
 class Config;
 } // namespace engine::core

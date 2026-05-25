@@ -2,7 +2,6 @@
 #include <SDL3/SDL_timer.h>
 #include <spdlog/spdlog.h>
 
-
 namespace engine::core {
 Time::Time() {
   // 初始化 last_time_ && frame_start_time_ 为当前时间,避免第一帧 delta 差距过大
@@ -15,8 +14,9 @@ void Time::update() {
   frame_start_time_ = SDL_GetTicksNS();
   auto current_delta_time =
       static_cast<double>(frame_start_time_ - last_time_) / 1000000000.0;
-  if (target_frame_time_ > 0.0) { // 如果设置了目标帧率,则限制帧率,否则delta_time_
-                                  // = current_delta_time
+  if (target_frame_time_ >
+      0.0) { // 如果设置了目标帧率,则限制帧率,否则delta_time_
+             // = current_delta_time
     limitFrameRate(current_delta_time);
   } else {
     delta_time_ = current_delta_time;
@@ -44,7 +44,23 @@ int Time::getTargetFps() const { return target_fps_; }
 
 float Time::getTimeScale() const { return time_scale_; }
 
-void Time::setTargetFps(int fps) { target_fps_ = fps; }
+void Time::setTargetFps(int fps) {
+  if (fps < 0) {
+    spdlog::warn("Target FPS 不能为负。Setting to 0 (unlimited).");
+    target_fps_ = 0;
+  } else {
+    target_fps_ = fps;
+  }
+
+  if (target_fps_ > 0) {
+    target_frame_time_ = 1.0 / static_cast<double>(target_fps_);
+    spdlog::info("Target FPS 设置为: {} (Frame time: {:.6f}s)", target_fps_,
+                 target_frame_time_);
+  } else {
+    target_frame_time_ = 0.0;
+    spdlog::info("Target FPS 设置为: Unlimited");
+  }
+}
 
 void Time::setTimeScale(float scale) { time_scale_ = scale; }
 } // namespace engine::core

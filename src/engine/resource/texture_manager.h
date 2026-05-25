@@ -6,7 +6,6 @@
 #include <string>
 #include <unordered_map>
 
-
 namespace engine::resource {
 
 using std::string;

@@ -4,7 +4,6 @@
 #include "../resource/resource_manager.h"
 #include <spdlog/spdlog.h>
 
-
 namespace engine::core {
 Context::Context(engine::input::InputManager &input_manager,
                  engine::render::Renderer &renderer,

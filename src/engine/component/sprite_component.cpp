@@ -6,7 +6,6 @@
 #include "transform_component.h"
 #include <spdlog/spdlog.h>
 
-
 namespace engine::component {
 void SpriteComponent::setSpriteByID(
     const std::string &texture_id,
@@ -77,10 +76,10 @@ void SpriteComponent::render(engine::core::Context &context) {
 
 SpriteComponent::SpriteComponent(
     const std::string &texture_id,
-    engine::resource::ResourceManager *resource_manager,
+    engine::resource::ResourceManager &resource_manager,
     engine::utils::Alignment alignment,
     std::optional<SDL_FRect> source_rect_opt, bool is_flipped)
-    : resource_manager_(resource_manager),
+    : resource_manager_(&resource_manager),
       sprite_(texture_id, source_rect_opt, is_flipped), alignment_(alignment) {
   if (!resource_manager_) {
     spdlog::critical(

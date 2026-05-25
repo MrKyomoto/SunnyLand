@@ -6,7 +6,6 @@
 #include <spdlog/spdlog.h>
 #include <stdexcept>
 
-
 namespace engine::render {
 Renderer::Renderer(SDL_Renderer *sdl_renderer,
                    engine::resource::ResourceManager *resource_manager)

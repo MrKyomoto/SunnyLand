@@ -7,7 +7,6 @@
 #include <optional>
 #include <string>
 
-
 namespace engine::resource {
 class ResourceManager;
 } // namespace engine::resource
@@ -37,7 +36,7 @@ private:
 public:
   SpriteComponent(
       const std::string &texture_id,
-      engine::resource::ResourceManager *resource_manager,
+      engine::resource::ResourceManager &resource_manager,
       engine::utils::Alignment alignment = engine::utils::Alignment::NONE,
       std::optional<SDL_FRect> source_rect_opt = std::nullopt,
       bool is_flipped = false);

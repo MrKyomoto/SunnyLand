@@ -8,7 +8,6 @@
 #include <glm/glm.hpp>
 #include <spdlog/spdlog.h>
 
-
 namespace engine::resource {
 ResourceManager::~ResourceManager() = default;
 

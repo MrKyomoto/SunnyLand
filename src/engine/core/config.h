@@ -4,7 +4,6 @@
 #include <unordered_map>
 #include <vector>
 
-
 namespace engine::core {
 using std::string;
 using std::vector;

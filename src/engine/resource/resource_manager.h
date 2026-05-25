@@ -3,7 +3,6 @@
 #include <memory>
 #include <string>
 
-
 extern "C" {
 struct SDL_Renderer;
 struct SDL_Texture;

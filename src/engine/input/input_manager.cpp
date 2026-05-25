@@ -5,7 +5,6 @@
 #include <spdlog/spdlog.h>
 #include <stdexcept>
 
-
 namespace engine::input {
 InputManager::InputManager(SDL_Renderer *sdl_renderer,
                            const engine::core::Config *config)

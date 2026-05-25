@@ -4,7 +4,6 @@
 #include "../render/camera.h"
 #include "../render/renderer.h"
 
-
 namespace engine::object {
 GameObject::GameObject(const std::string &name, const std::string &tag)
     : name_(name), tag_(tag) {

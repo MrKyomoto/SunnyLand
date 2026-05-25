@@ -1,4 +1,5 @@
 #include "engine/core/game_app.h"
+#include <spdlog/common.h>
 #include <spdlog/spdlog.h>
 
 int main(int, char *[]) {
