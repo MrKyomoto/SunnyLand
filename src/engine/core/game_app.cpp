@@ -88,7 +88,7 @@ void GameApp::handleEvents() {
 }
 
 void GameApp::update(float delta_time) {
-  // camera_->update(delta_time);
+  camera_->update(delta_time);
   scene_manager_->update(delta_time);
 }
 
