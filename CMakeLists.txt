@@ -53,6 +53,8 @@ add_executable(${TARGET}
                     src/engine/scene/scene.cpp
                     src/engine/scene/scene_manager.cpp
                     src/game/scene/game_scene.cpp
+                    src/engine/component/parallax_component.cpp
+                    src/game/scene/level_loader.cpp
                                 )
 
 # 链接库
