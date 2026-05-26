@@ -4,4 +4,16 @@
     - pay attention to "parallax", "repeat", "offset"
     - create game object containing ParallaxComponent
   - if type : tilelayer ...
+    - 地图大小: height * width, 指的是有多少个图块,因此是整形
+    - 瓦片大小: tileheight * tilewidth, 一般是像素值
+    - 地图像素大小: 高度 * 瓦片高 * 宽度 * 瓦片宽
+    - Data数组: 指定每个地图区域放什么图块(图片)
+      - 长度为地图大小
+      - 数值为瓦片索引, 0 代表无瓦片
+    - 瓦片索引GID: 全局唯一,计算方式: gid = firstgid + 图集内id
+    - 总共有地图大小个瓦片,放入vector中
+    - 每个瓦片包含数据 Sprite, Type(例如solid类型)
+    - 可能引用多个图块集,因此可先*载入并保存每个图块集的数据*(载入函数),其他瓦片层以及对象层也可以继续引用
+    - 通过data数组中的gid查找所需信息(查找函数),填充瓦片vector
+    - 创建包含TileLayerComponent的游戏对象(持有瓦片vector)
   - if type : objectgroup ...

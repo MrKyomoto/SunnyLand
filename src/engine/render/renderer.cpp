@@ -46,12 +46,20 @@ void Renderer::drawSprite(const Camera &camera, const Sprite &sprite,
 
   if (!isRectInViewport(camera, dest_rect)) {
 
-    spdlog::info("精灵超出视口范围: ID: {}", sprite.getTextureID());
+    // spdlog::info("精灵超出视口范围: ID: {}", sprite.getTextureID());
     return;
   }
 
+  // 这一行代码可以解决神秘的调整窗口大小出现的1px画面撕裂
+  SDL_FRect s_rect = {
+      src_rect.value().x + 0.001F,
+      src_rect.value().y + 0.001F,
+      src_rect.value().w - 0.002F,
+      src_rect.value().h - 0.002F,
+  };
+
   if (!SDL_RenderTextureRotated(
-          renderer_, texture, &src_rect.value(), &dest_rect, angle, NULL,
+          renderer_, texture, &s_rect, &dest_rect, angle, NULL,
           sprite.isFlipped() ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE)) {
     spdlog::error("渲染旋转纹理失败 (ID: {} : {})", sprite.getTextureID(),
                   SDL_GetError());

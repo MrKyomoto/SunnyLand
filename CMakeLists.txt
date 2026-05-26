@@ -55,6 +55,7 @@ add_executable(${TARGET}
                     src/game/scene/game_scene.cpp
                     src/engine/component/parallax_component.cpp
                     src/engine/scene/level_loader.cpp
+                    src/engine/component/tilelayer_component.cpp
                                 )
 
 # 链接库

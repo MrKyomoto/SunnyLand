@@ -1,6 +1,12 @@
 #pragma once
-#include <nlohmann/json_fwd.hpp>
+#include <nlohmann/json.hpp>
 #include <string>
+#include <glm/vec2.hpp>
+#include <map>
+
+namespace engine::component {
+struct TileInfo;
+}
 
 namespace engine::scene {
 using std::string;
@@ -8,6 +14,9 @@ class Scene;
 
 class LevelLoader final {
   string map_path_;
+  glm::ivec2 map_size_;
+  glm::ivec2 tile_size_;
+  std::map<int, nlohmann::json> tileset_data_; ///< @brief firstgid
 
 public:
   LevelLoader() = default;
@@ -20,11 +29,18 @@ private:
   void loadTileLayer(const nlohmann::json &tile_json, Scene &scene);
   void loadObjectLayer(const nlohmann::json &object_json, Scene &scene);
 
+  /**
+  * @brief 根据全局 ID 获取瓦片信息
+  */
+  engine::component::TileInfo getTileInfoByGid(int gid);
+
+  void loadTileset(const string& tileset_path,int first_gid);
+
   /// @brief 解析图片路径，合并地图路径和相对路径，例如：
   /// 1. 地图路径： "assets/maps/level1.tmj"
   /// 2. 相对路径： "../textures/Layers/back.png"
   /// 3. 最终路径： "assets/textures/Layers/back.png"
-  string resolvePath(string image_path);
+  string resolvePath(const string& relative_path, const string& file_path);
 };
 
 } // namespace engine::scene

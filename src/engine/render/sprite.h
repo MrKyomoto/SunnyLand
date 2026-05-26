@@ -25,6 +25,9 @@ public:
       : texture_id_(texture_id), source_rect_(source_rect),
         is_flipped_(is_flipped) {}
 
+  // 默认构造函数,创建一个空的/无效的精灵
+  Sprite() = default;
+
   const std::string &getTextureID() const { return texture_id_; }
   const std::optional<SDL_FRect> &getSourceRect() const { return source_rect_; }
   bool isFlipped() const { return is_flipped_; }
