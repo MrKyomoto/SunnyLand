@@ -58,6 +58,9 @@ add_executable(${TARGET}
                     src/engine/component/tilelayer_component.cpp
                     src/engine/component/physics_component.cpp
                     src/engine/physics/physics_engine.cpp
+                    src/engine/physics/collider.h
+                    src/engine/physics/collision.cpp
+                    src/engine/component/collider_component.cpp
                                 )
 
 # 链接库
