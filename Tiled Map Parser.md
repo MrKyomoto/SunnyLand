@@ -17,3 +17,6 @@
     - 通过data数组中的gid查找所需信息(查找函数),填充瓦片vector
     - 创建包含TileLayerComponent的游戏对象(持有瓦片vector)
   - if type : objectgroup ...
+    - 对象数据在'objects'字段中,每个对象都创建一个游戏对象
+    - 关注的要点: gid查找源图片信息, layer数据中确认目标位置(TransformComponent)信息
+    - 如果没有gid则代表自己绘制的形状(可能是碰撞箱,触发器等,未来按需处理)

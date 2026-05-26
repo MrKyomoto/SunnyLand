@@ -22,7 +22,6 @@ public:
   void clean() override;
 
 private:
-  void createTestObject();
   void testCamera();
 };
 

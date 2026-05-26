@@ -23,8 +23,6 @@ void GameScene::init() {
   engine::scene::LevelLoader level_loader;
   level_loader.loadLevel("assets/maps/level1.tmj", *this);
 
-  createTestObject();
-
   Scene::init();
   spdlog::trace("GameScene is initialized");
 }
@@ -36,19 +34,6 @@ void GameScene::handleInput() {
   testCamera();
 }
 void GameScene::clean() { Scene::clean(); }
-
-void GameScene::createTestObject() {
-  spdlog::trace("Creating test_object in GameScene... ");
-  auto test_object =
-      std::make_unique<engine::object::GameObject>("test_object");
-  test_object->addComponent<engine::component::TransformComponent>(
-      glm::vec2(100.0f, 100.0f));
-  test_object->addComponent<engine::component::SpriteComponent>(
-      "assets/textures/Actors/foxy.png", context_.getResourceManager());
-
-  addGameObject(std::move(test_object));
-  spdlog::trace("test_object is created and added into GameScene");
-}
 
 void GameScene::testCamera() {
   auto &camera = context_.getCamera();

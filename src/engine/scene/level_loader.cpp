@@ -1,5 +1,6 @@
 #include "level_loader.h"
 #include "../component/parallax_component.h"
+#include "../component/sprite_component.h"
 #include "../component/tilelayer_component.h"
 #include "../component/transform_component.h"
 #include "../core/context.h"
@@ -157,8 +158,56 @@ void LevelLoader::loadTileLayer(const nlohmann::json &tile_json, Scene &scene) {
   scene.addGameObject(std::move(game_object));
 }
 
-void LevelLoader::loadObjectLayer(const nlohmann::json &object_json, Scene &) {
-  // TODO
+void LevelLoader::loadObjectLayer(const nlohmann::json &object_json,
+                                  Scene &scene) {
+  if (!object_json.contains("objects") || !object_json["objects"].is_array()) {
+    spdlog::error("对象图层 '{}' 缺少 'objects' 属性",
+                  object_json.value("name", "Unnamed"));
+    return;
+  }
+
+  const auto &objects = object_json["objects"];
+  for (const auto &object : objects) {
+    auto gid = object.value("gid", 0);
+    if (gid == 0) {
+      // TODO: 这是自己绘制的形状, 未来按需处理
+    } else {
+      auto tile_info = getTileInfoByGid(gid);
+      if (tile_info.sprite.getTextureID().empty()) {
+        spdlog::error("gid 为 {} 的瓦片没有图像纹理", gid);
+        continue;
+      }
+
+      auto position =
+          glm::vec2(object.value("x", 0.0f), object.value("y", 0.0f));
+      auto dst_size =
+          glm::vec2(object.value("width", 0.0f), object.value("height", 0.0f));
+      // 实际的position需要调整(左下角->左上角)
+      position = glm::vec2(position.x, position.y - dst_size.y);
+
+      auto rotation = object.value("rotation", 0.0f);
+      auto src_size_opt = tile_info.sprite.getSourceRect();
+      if (!src_size_opt) {
+        // 正常情况下调用了getTileInfoByGid得到的TileInfo.sprite都设置了源矩形,没有代表某处出错
+        spdlog::error("gid 为 {} 的瓦片没有源矩形");
+        continue;
+      }
+      auto src_size = glm::vec2(src_size_opt->w, src_size_opt->h);
+      auto scale = dst_size / src_size;
+
+      const string &object_name = object.value("name", "Unnamed");
+
+      auto game_object =
+          std::make_unique<engine::object::GameObject>(object_name);
+      game_object->addComponent<engine::component::TransformComponent>(
+          position, scale, rotation);
+      game_object->addComponent<engine::component::SpriteComponent>(
+          std::move(tile_info.sprite), scene.getContext().getResourceManager());
+
+      scene.addGameObject(std::move(game_object));
+      spdlog::info("加载对象: '{}' 完成", object_name);
+    }
+  }
 }
 
 engine::component::TileInfo LevelLoader::getTileInfoByGid(int gid) {
