@@ -11,7 +11,7 @@ namespace engine::component {
 
 ParallaxComponent::ParallaxComponent(const std::string &texture_id,
                                      const glm::vec2 &scroll_factor,
-                                     glm::bvec2 &repeat)
+                                     const glm::bvec2 &repeat)
     : sprite_(engine::render::Sprite(texture_id)),
       scroll_factor_(scroll_factor), repeat_(repeat) {
   spdlog::trace("ParallaxComponent is constructed, texture id: {}", texture_id);

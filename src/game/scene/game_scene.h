@@ -23,5 +23,7 @@ public:
 
 private:
   void createTestObject();
+  void testCamera();
 };
+
 } // namespace game::scene

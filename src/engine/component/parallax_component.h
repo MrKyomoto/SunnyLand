@@ -31,7 +31,7 @@ private:
 
 public:
   ParallaxComponent(const std::string &texture_id,
-                    const glm::vec2 &scroll_factor, glm::bvec2 &repeat);
+                    const glm::vec2 &scroll_factor, const glm::bvec2 &repeat);
 
   ParallaxComponent(ParallaxComponent &&) = delete;
   ParallaxComponent(const ParallaxComponent &) = delete;
