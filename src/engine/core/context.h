@@ -9,6 +9,10 @@ namespace engine::input {
 class InputManager;
 } // namespace engine::input
 
+namespace engine::physics {
+class PhysicsEngine;
+}
+
 namespace engine::core {
 /**
  * @brief 持有对核心引擎模块引用的上下文对象
@@ -22,11 +26,13 @@ private:
   engine::render::Renderer &renderer_;
   engine::render::Camera &camera_;
   engine::resource::ResourceManager &resource_manager_;
+  engine::physics::PhysicsEngine &physics_engine_;
 
 public:
   Context(engine::input::InputManager &input_manager,
           engine::render::Renderer &renderer, engine::render::Camera &camera,
-          engine::resource::ResourceManager &resource_manager);
+          engine::resource::ResourceManager &resource_manager,
+          engine::physics::PhysicsEngine &physics_engine);
 
   Context(const Context &) = delete;
   Context &operator=(const Context &) = delete;
@@ -42,6 +48,7 @@ public:
   engine::resource::ResourceManager &getResourceManager() const {
     return resource_manager_;
   }
+  engine::physics::PhysicsEngine &getPhysicsEngine() const { return physics_engine_; };
 };
 
 } // namespace engine::core

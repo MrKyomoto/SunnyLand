@@ -1,4 +1,5 @@
 #include "game_scene.h"
+#include "../../engine/component/physics_component.h"
 #include "../../engine/component/sprite_component.h"
 #include "../../engine/component/transform_component.h"
 #include "../../engine/core/context.h"
@@ -23,6 +24,8 @@ void GameScene::init() {
   engine::scene::LevelLoader level_loader;
   level_loader.loadLevel("assets/maps/level1.tmj", *this);
 
+  createTestObject();
+
   Scene::init();
   spdlog::trace("GameScene is initialized");
 }
@@ -31,7 +34,8 @@ void GameScene::update(float delta_time) { Scene::update(delta_time); }
 void GameScene::render() { Scene::render(); }
 void GameScene::handleInput() {
   Scene::handleInput();
-  testCamera();
+  // testCamera();
+  testObject();
 }
 void GameScene::clean() { Scene::clean(); }
 
@@ -48,4 +52,33 @@ void GameScene::testCamera() {
     camera.move(glm::vec2(1, 0));
 }
 
+void GameScene::createTestObject() {
+  spdlog::trace("在 GameScene 中创建 test_object...");
+  auto test_object =
+      std::make_unique<engine::object::GameObject>("test_object");
+  test_object_ = test_object.get();
+
+  test_object_->addComponent<engine::component::TransformComponent>(
+      glm::vec2(100.0f, 100.0f));
+  test_object_->addComponent<engine::component::SpriteComponent>(
+      "assets/textures/Props/big-crate.png", context_.getResourceManager());
+  test_object_->addComponent<engine::component::PhysicsComponent>(
+      &context_.getPhysicsEngine());
+  addGameObject(std::move(test_object));
+  spdlog::trace("test_object 创建并添加到 GameScene中");
+}
+void GameScene::testObject() {
+  if (!test_object_)
+    return;
+  auto &input_manager = context_.getInputManager();
+  if (input_manager.isActionDown("move_left"))
+    test_object_->getComponent<engine::component::TransformComponent>()
+        ->translate(glm::vec2(-1, 0));
+  if (input_manager.isActionDown("move_right"))
+    test_object_->getComponent<engine::component::TransformComponent>()
+        ->translate(glm::vec2(1, 0));
+  if (input_manager.isActionDown("jump"))
+    test_object_->getComponent<engine::component::PhysicsComponent>()
+        ->setVelocity(glm::vec2(0, - 400));
+}
 } // namespace game::scene

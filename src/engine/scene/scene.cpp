@@ -4,6 +4,7 @@
 #include "../object/game_object.h"
 #include "../render/camera.h"
 #include "../render/renderer.h"
+#include "../physics/physics_engine.h"
 #include <algorithm>
 #include <memory>
 #include <spdlog/spdlog.h>
@@ -28,6 +29,8 @@ void Scene::init() {
 void Scene::update(float delta_time) {
   if (!is_initialized_)
     return;
+
+  context_.getPhysicsEngine().update(delta_time);
 
   for (auto it = game_objects_.begin(); it != game_objects_.end();) {
     if (*it && !(*it)->isNeedRemove()) {

@@ -56,6 +56,8 @@ add_executable(${TARGET}
                     src/engine/component/parallax_component.cpp
                     src/engine/scene/level_loader.cpp
                     src/engine/component/tilelayer_component.cpp
+                    src/engine/component/physics_component.cpp
+                    src/engine/physics/physics_engine.cpp
                                 )
 
 # 链接库

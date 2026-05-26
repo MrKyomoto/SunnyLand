@@ -11,6 +11,8 @@ namespace game::scene {
  * @brief 主要的游戏场景，包含玩家，敌人，关卡元素
  */
 class GameScene final : public engine::scene::Scene {
+  engine::object::GameObject* test_object_ = nullptr;
+
 public:
   GameScene(std::string name, engine::core::Context &context,
             engine::scene::SceneManager &scene_manager);
@@ -22,7 +24,9 @@ public:
   void clean() override;
 
 private:
+  void createTestObject();
   void testCamera();
+  void testObject();
 };
 
 } // namespace game::scene

@@ -2,13 +2,14 @@
 #include "../../game/scene/game_scene.h"
 #include "../component/sprite_component.h"
 #include "../component/transform_component.h"
+#include "../core/config.h"
 #include "../input/input_manager.h"
 #include "../object/game_object.h"
+#include "../physics/physics_engine.h"
 #include "../render/camera.h"
 #include "../render/renderer.h"
 #include "../resource/resource_manager.h"
 #include "../scene/scene_manager.h"
-#include "../core/config.h"
 #include "context.h"
 #include "time.h"
 #include <SDL3/SDL.h>
@@ -65,6 +66,8 @@ bool GameApp::init() {
     return false;
   if (!initInputManager())
     return false;
+  if (!initPhysicsEngine())
+    return false;
   if (!initContext())
     return false;
   if (!initSceneManager())
@@ -102,6 +105,7 @@ void GameApp::render() {
 
 void GameApp::close() {
   spdlog::trace("关闭 GameApp...");
+  scene_manager_->close();
 
   resource_manager_.reset();
 
@@ -226,10 +230,22 @@ bool GameApp::initInputManager() {
   return true;
 }
 
+bool GameApp::initPhysicsEngine() {
+  try {
+    physics_engine_ = std::make_unique<engine::physics::PhysicsEngine>();
+  } catch (const std::exception &e) {
+    spdlog::error("初始化PhysicsEngine失败: {}", e.what());
+    return false;
+  }
+  spdlog::trace("PhysicesEngine初始化成功");
+  return true;
+}
+
 bool GameApp::initContext() {
   try {
     context_ = std::make_unique<engine::core::Context>(
-        *input_manager_, *renderer_, *camera_, *resource_manager_);
+        *input_manager_, *renderer_, *camera_, *resource_manager_,
+        *physics_engine_);
   } catch (const std::exception &e) {
     spdlog::error("初始化Context失败: {}", e.what());
     return false;
