@@ -46,6 +46,7 @@ bool LevelLoader::loadLevel(const string &map, Scene &scene) {
       }
       auto tileset_path = resolvePath(tileset_json["source"], map_path_);
       auto first_gid = tileset_json["firstgid"];
+      // 把Tileset存入内存,便于快速读取
       loadTileset(tileset_path, first_gid);
     }
   }
