@@ -5,6 +5,7 @@
 
 namespace engine::component {
 class PhysicsComponent;
+class TileLayerComponent;
 }
 
 namespace engine::object {
@@ -15,6 +16,7 @@ namespace engine::physics {
 class PhysicsEngine {
 private:
   std::vector<engine::component::PhysicsComponent *> components_;
+  std::vector<engine::component::TileLayerComponent *> collision_tile_layers_;
   // 默认值 (px/s^2,相当于100px对应现实里1m)
   glm::vec2 gravity_ = {0.0f, 980.0f};
   float max_speed_ = 500.0f;
@@ -35,8 +37,12 @@ public:
   void registerComponent(engine::component::PhysicsComponent *component);
   void unregisterComponent(engine::component::PhysicsComponent *component);
 
+  void registerCollisionLayer(engine::component::TileLayerComponent *layer);
+  void unregisterCollisionLayer(engine::component::TileLayerComponent *layer);
+
   void update(float delta_time);
-  void checkObjectCollision();
+  void checkObjectCollisions();
+  void resolveTileCollisions(engine::component::PhysicsComponent* pc,float delta_time);
 
   void setGravity(const glm::vec2 &gravity) { gravity_ = gravity; }
   const glm::vec2 &getGravity() const { return gravity_; }

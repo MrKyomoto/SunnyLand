@@ -4,6 +4,7 @@
 #include "../render/renderer.h"
 #include "../render/sprite.h"
 #include <spdlog/spdlog.h>
+#include "../physics/physics_engine.h"
 
 namespace engine::component {
 
@@ -65,7 +66,7 @@ const TileInfo *TileLayerComponent::getTileInfoAt(glm::ivec2 pos) const {
     return nullptr;
   }
 
-  size_t index = static_cast<size_t>(pos.y) * map_size_.x + pos.y;
+  size_t index = static_cast<size_t>(pos.y) * map_size_.x + pos.x;
   if (index < tiles_.size()) {
 
     return &tiles_[index];
@@ -85,6 +86,11 @@ TileLayerComponent::getTileTypeAtWorldPos(const glm::vec2 &world_pos) const {
     int tile_x = static_cast<int>(std::floor(relative_pos.x / tile_size_.x));
     int tile_y = static_cast<int>(std::floor(relative_pos.y / tile_size_.y));
     return getTileTypeAt(glm::ivec2{tile_x, tile_y});
+}
+void TileLayerComponent::clean() {
+  if (physics_engine_) {
+    physics_engine_->unregisterCollisionLayer(this);
+  }
 }
 
 } // namespace engine::component

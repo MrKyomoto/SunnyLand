@@ -12,6 +12,10 @@ namespace engine::core {
 class Context;
 }
 
+namespace engine::physics {
+class PhysicsEngine;
+}
+
 namespace engine::component {
 /**
  * @brief 定义瓦片类型,用于游戏逻辑(i.e. 碰撞)
@@ -46,6 +50,8 @@ private:
   glm::vec2 offset_ = {0.0f, 0.0f};
   bool is_hidden_ = false;
 
+  engine::physics::PhysicsEngine *physics_engine_ = nullptr;
+
 public:
   TileLayerComponent() = default;
 
@@ -74,11 +80,16 @@ public:
 
   void setOffset(const glm::vec2 &offset) { offset_ = offset; }
   void setHidden(bool hidden) { is_hidden_ = hidden; }
+  // 不是所有的tilelayer都要注册到物理引擎里所以不在构造函数里传参而是写一个Setter
+  void setPhysicsEngine(engine::physics::PhysicsEngine *physics_engine) {
+    physics_engine_ = physics_engine;
+  }
 
 protected:
   void init() override;
   void update(float, engine::core::Context &) override {}
   void render(engine::core::Context &context) override;
+  void clean() override;
 };
 
 } // namespace engine::component

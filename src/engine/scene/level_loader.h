@@ -6,6 +6,7 @@
 
 namespace engine::component {
 struct TileInfo;
+enum class TileType;
 }
 
 namespace engine::scene {
@@ -29,6 +30,8 @@ private:
   void loadTileLayer(const nlohmann::json &tile_json, Scene &scene);
   void loadObjectLayer(const nlohmann::json &object_json, Scene &scene);
 
+  engine::component::TileType getTileType(const nlohmann::json& tile_json);
+  engine::component::TileType getTileTypeByID(const nlohmann::json& tileset_json,int local_id);
   /**
   * @brief 根据全局 ID 获取瓦片信息
   */

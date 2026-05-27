@@ -251,8 +251,8 @@ engine::component::TileInfo LevelLoader::getTileInfoByGid(int gid) {
         static_cast<float>(tile_size_.y),
     };
     engine::render::Sprite sprite(texture_id, texture_rect);
-    return engine::component::TileInfo(sprite,
-                                       engine::component::TileType::NORMAL);
+    auto tile_type = getTileTypeByID(tileset, local_id);
+    return engine::component::TileInfo(sprite, tile_type);
   } else {
     if (!tileset.contains("tiles")) {
       spdlog::error("Tileset file '{}' lacks 'tiles' property",
@@ -283,8 +283,8 @@ engine::component::TileInfo LevelLoader::getTileInfoByGid(int gid) {
         };
 
         engine::render::Sprite sprite(texture_id, texture_rect);
-        return engine::component::TileInfo(sprite,
-                                           engine::component::TileType::NORMAL);
+        auto tile_type = getTileType(tile_json);
+        return engine::component::TileInfo(sprite, tile_type);
       }
     }
   }
@@ -293,6 +293,34 @@ engine::component::TileInfo LevelLoader::getTileInfoByGid(int gid) {
   spdlog::error("Tileset '{}' not found tile with gid {}", tileset_it->first,
                 gid);
   return engine::component::TileInfo();
+}
+
+engine::component::TileType
+LevelLoader::getTileType(const nlohmann::json &tile_json) {
+  if (tile_json.contains("properties")) {
+    auto &properties = tile_json["properties"];
+    for (auto &property : properties) {
+      if (property.contains("name") && property["name"] == "solid") {
+        auto is_solid = property.value("value", false);
+        return is_solid ? component::TileType::SOLID
+                        : component::TileType::NORMAL;
+      }
+    }
+  }
+  return component::TileType::NORMAL;
+}
+
+engine::component::TileType
+LevelLoader::getTileTypeByID(const nlohmann::json &tileset_json, int local_id) {
+  if (tileset_json.contains("tiles")) {
+    auto &tiles = tileset_json["tiles"];
+    for (auto &tile : tiles) {
+      if (tile.contains("id") && tile["id"] == local_id) {
+        return getTileType(tile);
+      }
+    }
+  }
+  return component::TileType::NORMAL;
 }
 string LevelLoader::resolvePath(const string &relative_path,
                                 const string &file_path) {
