@@ -6,7 +6,7 @@
 namespace engine::component {
 class PhysicsComponent;
 class TileLayerComponent;
-}
+} // namespace engine::component
 
 namespace engine::object {
 class GameObject;
@@ -41,8 +41,6 @@ public:
   void unregisterCollisionLayer(engine::component::TileLayerComponent *layer);
 
   void update(float delta_time);
-  void checkObjectCollisions();
-  void resolveTileCollisions(engine::component::PhysicsComponent* pc,float delta_time);
 
   void setGravity(const glm::vec2 &gravity) { gravity_ = gravity; }
   const glm::vec2 &getGravity() const { return gravity_; }
@@ -53,6 +51,15 @@ public:
   getCollisionPairs() const {
     return collision_pairs_;
   }
+
+private:
+  void checkObjectCollisions();
+  void resolveTileCollisions(engine::component::PhysicsComponent *pc,
+                             float delta_time);
+
+  // 处理可移动物体与SOLID物体的碰撞
+  void resolveSolidObjectCollisions(engine::object::GameObject *move_obj,
+                                    engine::object::GameObject *solid_obj);
 };
 
 } // namespace engine::physics

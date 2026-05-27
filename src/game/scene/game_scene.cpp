@@ -2,8 +2,8 @@
 #include "../../engine/component/collider_component.h"
 #include "../../engine/component/physics_component.h"
 #include "../../engine/component/sprite_component.h"
-#include "../../engine/component/transform_component.h"
 #include "../../engine/component/tilelayer_component.h"
+#include "../../engine/component/transform_component.h"
 #include "../../engine/core/context.h"
 #include "../../engine/input/input_manager.h"
 #include "../../engine/object/game_object.h"
@@ -36,8 +36,11 @@ void GameScene::init() {
       spdlog::info("注册 main 层到物理引擎");
     }
   }
-
-  createTestObject();
+  player_ = findGameObjectByName("player");
+  if (!player_) {
+    spdlog::error("未找到玩家对象");
+    return;
+  }
 
   Scene::init();
   spdlog::trace("GameScene is initialized");
@@ -47,8 +50,8 @@ void GameScene::update(float delta_time) { Scene::update(delta_time); }
 void GameScene::render() { Scene::render(); }
 void GameScene::handleInput() {
   Scene::handleInput();
-  // testCamera();
-  testObject();
+  testCamera();
+  testPlayer();
   testCollisionPairs();
 }
 void GameScene::clean() { Scene::clean(); }
@@ -66,46 +69,13 @@ void GameScene::testCamera() {
     camera.move(glm::vec2(1, 0));
 }
 
-void GameScene::createTestObject() {
-  spdlog::trace("在 GameScene 中创建 test_object...");
-  auto test_object =
-      std::make_unique<engine::object::GameObject>("test_object");
-  test_object_ = test_object.get();
-
-  test_object_->addComponent<engine::component::TransformComponent>(
-      glm::vec2(100.0f, 60.0f));
-  test_object_->addComponent<engine::component::SpriteComponent>(
-      "assets/textures/Props/big-crate.png", context_.getResourceManager());
-  test_object_->addComponent<engine::component::PhysicsComponent>(
-      &context_.getPhysicsEngine());
-  test_object_->addComponent<engine::component::ColliderComponent>(
-      std::make_unique<engine::physics::AABBCollider>(glm::vec2(32.0f,32.0f)));
-
-  addGameObject(std::move(test_object));
-  spdlog::trace("test_object 创建并添加到 GameScene中");
-
-  auto test_object2 =
-      std::make_unique<engine::object::GameObject>("test_object2");
-
-  test_object2->addComponent<engine::component::TransformComponent>(
-      glm::vec2(50.0f, 50.0f));
-  test_object2->addComponent<engine::component::SpriteComponent>(
-      "assets/textures/Props/big-crate.png", context_.getResourceManager());
-  test_object2->addComponent<engine::component::PhysicsComponent>(
-      &context_.getPhysicsEngine(), false);
-  test_object2->addComponent<engine::component::ColliderComponent>(
-      std::make_unique<engine::physics::AABBCollider>(glm::vec2(32.0f, 32.0f)));
-
-  addGameObject(std::move(test_object2));
-  spdlog::trace("test_object2 added into GameScene");
-}
-
-void GameScene::testObject() {
-  if (!test_object_)
+void GameScene::testPlayer() {
+  if (!player_)
     return;
   auto &input_manager = context_.getInputManager();
-  auto* pc = test_object_->getComponent<engine::component::PhysicsComponent>();
-  if(!pc) return;
+  auto *pc = player_->getComponent<engine::component::PhysicsComponent>();
+  if (!pc)
+    return;
   if (input_manager.isActionDown("move_left")) {
     pc->velocity_.x = -100.0f;
   } else {

@@ -33,7 +33,7 @@ public:
 
   void updateOffset();
 
-  const TransformComponent *getTransform() const { return transform_; }
+  TransformComponent *getTransform() const { return transform_; }
   const engine::physics::Collider *getCollider() const {
     return collider_.get();
   }

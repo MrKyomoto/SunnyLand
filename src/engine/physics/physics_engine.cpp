@@ -55,9 +55,9 @@ void PhysicsEngine::update(float delta_time) {
     pc->velocity_ += (pc->getForce() / pc->getMass()) * delta_time;
     // 清除当前帧的力
     pc->clearForce();
+    pc->velocity_ = glm::clamp(pc->velocity_, -max_speed_, max_speed_);
 
     resolveTileCollisions(pc, delta_time);
-    pc->velocity_ = glm::clamp(pc->velocity_, -max_speed_, max_speed_);
   }
 
   checkObjectCollisions();
@@ -93,8 +93,14 @@ void PhysicsEngine::checkObjectCollisions() {
       // 通过保护性测试后,正式执行逻辑
 
       if (collision::checkCollision(*cc_a, *cc_b)) {
-        // TODO: 并不是所有碰撞都需要插入 collision_pairs_,未来会添加过滤条件
-        collision_pairs_.emplace_back(obj_a, obj_b);
+        // 如果是可移动物体与SOLID物体碰撞,则直接处理位置变化,不用记录碰撞对
+        if (obj_a->getTag() != "solid" && obj_b->getTag() == "solid") {
+          resolveSolidObjectCollisions(obj_a, obj_b);
+        } else if (obj_a->getTag() == "solid" && obj_b->getTag() != "solid") {
+          resolveSolidObjectCollisions(obj_b, obj_a);
+        } else {
+          collision_pairs_.emplace_back(obj_a, obj_b);
+        }
       }
     }
   }
@@ -192,7 +198,62 @@ void PhysicsEngine::resolveTileCollisions(
       }
     }
   }
-  tc->setPosition(new_obj_pos);
+  // 使用translate 方法,避免直接设置位置,因为碰撞盒可能有偏移量
+  // 解释起来是这样的,这个函数计算的时候使用的pos一直都是碰撞盒的pos,但是碰撞盒和实体本身不一定是完全重合的,是有偏移量的,所以不能最后直接用setPosition(new_obj_pos),但是不管偏移量是多少,盒子移动的距离和实体移动的距离肯定是相同的,所以用translate
+  tc->translate(new_obj_pos - obj_pos);
+}
+void PhysicsEngine::resolveSolidObjectCollisions(
+    engine::object::GameObject *move_obj,
+    engine::object::GameObject *solid_obj) {
+
+  // 进入此函数前,已经检查了各个组件的有效性,因此直接进行计算
+  auto *move_tc =
+      move_obj->getComponent<engine::component::TransformComponent>();
+
+  auto *move_pc = move_obj->getComponent<engine::component::PhysicsComponent>();
+  auto *move_cc =
+      move_obj->getComponent<engine::component::ColliderComponent>();
+
+  auto *solid_cc =
+      solid_obj->getComponent<engine::component::ColliderComponent>();
+
+  // 这里只能获取期望位置,无法获取当前帧初始位置,因此无法进行轴分离碰撞检测
+  auto move_aabb = move_cc->getWorldAABB();
+  auto solid_aabb = solid_cc->getWorldAABB();
+
+  // 使用最小平移向量解决碰撞问题, 稳定性不如轴分离的逻辑
+  // 简单来讲就是计算重叠区域的宽度和高度,哪个小,就往哪个方向推,把他们推的不重叠
+  auto move_center = move_aabb.position + move_aabb.size / 2.0f;
+  auto solid_center = solid_aabb.position + solid_aabb.size / 2.0f;
+
+  // 计算两个包围盒重叠部分
+  auto overlap = glm::vec2(move_aabb.size / 2.0f + solid_aabb.size / 2.0f) -
+                 glm::abs(move_center - solid_center);
+  if (overlap.x < 0.1f && overlap.y < 0.1f)
+    return; // 重叠部分太小则认为没有碰撞
+
+  if (overlap.x < overlap.y) {
+    if (move_center.x < solid_center.x) {
+      move_tc->translate(glm::vec2(-overlap.x, 0.0f));
+      if (move_pc->getVelocity().x > 0.0f)
+        move_pc->velocity_.x = 0.0f; // if判断不可少否则可能出现错误吸附
+    } else {
+      move_tc->translate(glm::vec2(overlap.x, 0.0f));
+      if (move_pc->getVelocity().x < 0.0f)
+        move_pc->velocity_.x = 0.0f; // if判断不可少否则可能出现错误吸附
+    }
+  } else {
+    if (move_center.y < solid_center.y) {
+
+      move_tc->translate(glm::vec2(0.0f, -overlap.y));
+      if (move_pc->getVelocity().y > 0.0f)
+        move_pc->velocity_.y = 0.0f; // if判断不可少否则可能出现错误吸附
+    } else {
+      move_tc->translate(glm::vec2(0.0f, overlap.y));
+      if (move_pc->getVelocity().y < 0.0f)
+        move_pc->velocity_.y = 0.0f; // if判断不可少否则可能出现错误吸附
+    }
+  }
 }
 
 } // namespace engine::physics

@@ -1,10 +1,14 @@
 #include "level_loader.h"
+#include "../component/collider_component.h"
 #include "../component/parallax_component.h"
+#include "../component/physics_component.h"
 #include "../component/sprite_component.h"
 #include "../component/tilelayer_component.h"
 #include "../component/transform_component.h"
 #include "../core/context.h"
 #include "../object/game_object.h"
+#include "../physics/collider.h"
+#include "../physics/physics_engine.h"
 #include "../render/sprite.h"
 #include "../scene/scene.h"
 #include <filesystem>
@@ -204,6 +208,49 @@ void LevelLoader::loadObjectLayer(const nlohmann::json &object_json,
       game_object->addComponent<engine::component::SpriteComponent>(
           std::move(tile_info.sprite), scene.getContext().getResourceManager());
 
+      // 获取瓦片 json 信息,
+      // 必然存在,因为getTileInfoByGid函数已顺利执行,这里再次获取json实际上检索了两次,未来可以优化
+      auto tile_json = getTileJsonByGid(gid);
+      // 如果是solid类型,则为静止障碍物,碰撞盒大小为整个图片大小
+      if (tile_info.type == component::TileType::SOLID) {
+        auto collider =
+            std::make_unique<engine::physics::AABBCollider>(src_size);
+        game_object->addComponent<engine::component::ColliderComponent>(
+            std::move(collider));
+        game_object->addComponent<engine::component::PhysicsComponent>(
+            &scene.getContext().getPhysicsEngine(), false);
+        game_object->setTag("solid");
+      } else if (auto rect = getColliderRect(tile_json); rect) {
+        auto collider =
+            std::make_unique<engine::physics::AABBCollider>(rect->size);
+        auto *cc =
+            game_object->addComponent<engine::component::ColliderComponent>(
+                std::move(collider));
+        // 自定义碰撞盒的坐标是相对于图片坐标,也就是针对Transform的偏移量
+        cc->setOffset(rect->position);
+        game_object->addComponent<engine::component::PhysicsComponent>(
+            &scene.getContext().getPhysicsEngine(), false);
+      }
+
+      auto tag = getTileProperty<std::string>(tile_json, "tag");
+      if (tag) {
+        game_object->setTag(tag.value());
+      }
+      auto gravity = getTileProperty<bool>(tile_json, "gravity");
+      if (gravity) {
+        auto pc =
+            game_object->getComponent<engine::component::PhysicsComponent>();
+        if (pc) {
+          pc->setUseGravity(gravity.value());
+        } else {
+          spdlog::warn(
+              "Object '{}' 在设置重力信息时没有物理组件,请检查地图设置",
+              object_name);
+          game_object->addComponent<engine::component::PhysicsComponent>(
+              &scene.getContext().getPhysicsEngine(), gravity.value());
+        }
+      }
+
       scene.addGameObject(std::move(game_object));
       spdlog::info("加载对象: '{}' 完成", object_name);
     }
@@ -322,6 +369,51 @@ LevelLoader::getTileTypeByID(const nlohmann::json &tileset_json, int local_id) {
   }
   return component::TileType::NORMAL;
 }
+
+std::optional<engine::utils::Rect>
+LevelLoader::getColliderRect(const nlohmann::json &tile_json) {
+  if (!tile_json.contains("objectgroup"))
+    return std::nullopt;
+  auto &objectgroup = tile_json["objectgroup"];
+  if (!objectgroup.contains("objects"))
+    return std::nullopt;
+  auto &objects = objectgroup["objects"];
+  for (const auto &object : objects) {
+    auto rect = engine::utils::Rect(
+        glm::vec2(object.value("x", 0.0f), object.value("y", 0.0f)),
+        glm::vec2(object.value("width", 0.0f), object.value("height", 0.0f)));
+    if (rect.size.x > 0 && rect.size.y > 0) {
+      return rect;
+    }
+  }
+  return std::nullopt;
+}
+
+std::optional<nlohmann::json> LevelLoader::getTileJsonByGid(int gid) const {
+  auto tileset_it = tileset_data_.upper_bound(gid);
+  if (tileset_it == tileset_data_.begin()) {
+    spdlog::error("gid 为 {} 的瓦片未找到图块集", gid);
+    return std::nullopt;
+  }
+  tileset_it--;
+
+  const auto &tileset = tileset_it->second;
+  auto local_id = gid - tileset_it->first;
+  if (!tileset.contains("tiles")) {
+    spdlog::error("Tileset file {} lacks 'tiles' property", tileset_it->first);
+    return std::nullopt;
+  }
+
+  const auto &tiles_json = tileset["tiles"];
+  for (const auto &tile_json : tiles_json) {
+    auto tile_id = tile_json.value("id", 0);
+    if (tile_id == local_id) {
+      return tile_json;
+    }
+  }
+  return std::nullopt;
+}
+
 string LevelLoader::resolvePath(const string &relative_path,
                                 const string &file_path) {
   try {

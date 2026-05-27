@@ -19,4 +19,10 @@
   - if type : objectgroup ...
     - 对象数据在'objects'字段中,每个对象都创建一个游戏对象
     - 关注的要点: gid查找源图片信息, layer数据中确认目标位置(TransformComponent)信息
+      - 如果是solid类型,则为静止障碍物,碰撞盒大小为整个图片大小
+      - 如果是非solid
+        - 碰撞盒大小,偏移:获取objectgroup -> 获取objects -> x, y, width,height
+        - 获取其他指定自定义属性,进行必要设置/组件添加(tag,gravity)
     - 如果没有gid则代表自己绘制的形状(可能是碰撞箱,触发器等,未来按需处理)
+
+  - 自定义属性的获取方法: 图块集中 获取 tiles -> 获取 properties
