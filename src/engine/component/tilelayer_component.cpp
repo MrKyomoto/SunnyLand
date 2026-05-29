@@ -1,10 +1,11 @@
 #include "tilelayer_component.h"
 #include "../core/context.h"
+#include "../physics/physics_engine.h"
 #include "../render/camera.h"
 #include "../render/renderer.h"
 #include "../render/sprite.h"
 #include <spdlog/spdlog.h>
-#include "../physics/physics_engine.h"
+
 
 namespace engine::component {
 
@@ -41,18 +42,14 @@ void TileLayerComponent::render(engine::core::Context &context) {
             offset_.x + static_cast<float>(x) * tile_size_.x,
             offset_.y + static_cast<float>(y) * tile_size_.y};
 
+        // 左下角转到左上角,因此只需要修改y的偏移而不需要修改x
         if (static_cast<int>(tile_info.sprite.getSourceRect()->h) !=
             tile_size_.y) {
           // 如果图片大小与瓦片大小不一致,则需要调整
           tile_left_top_pos.y -= (tile_info.sprite.getSourceRect()->h -
                                   static_cast<float>(tile_size_.y));
         }
-        if (static_cast<int>(tile_info.sprite.getSourceRect()->w) !=
-            tile_size_.x) {
-          // 如果图片大小与瓦片大小不一致,则需要调整
-          tile_left_top_pos.x -= (tile_info.sprite.getSourceRect()->w -
-                                  static_cast<float>(tile_size_.x));
-        }
+
         context.getRenderer().drawSprite(context.getCamera(), tile_info.sprite,
                                          tile_left_top_pos);
       }
@@ -82,10 +79,10 @@ TileType TileLayerComponent::getTileTypeAt(glm::ivec2 pos) const {
 
 TileType
 TileLayerComponent::getTileTypeAtWorldPos(const glm::vec2 &world_pos) const {
-    glm::vec2 relative_pos = world_pos - offset_;
-    int tile_x = static_cast<int>(std::floor(relative_pos.x / tile_size_.x));
-    int tile_y = static_cast<int>(std::floor(relative_pos.y / tile_size_.y));
-    return getTileTypeAt(glm::ivec2{tile_x, tile_y});
+  glm::vec2 relative_pos = world_pos - offset_;
+  int tile_x = static_cast<int>(std::floor(relative_pos.x / tile_size_.x));
+  int tile_y = static_cast<int>(std::floor(relative_pos.y / tile_size_.y));
+  return getTileTypeAt(glm::ivec2{tile_x, tile_y});
 }
 void TileLayerComponent::clean() {
   if (physics_engine_) {

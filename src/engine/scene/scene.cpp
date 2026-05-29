@@ -31,6 +31,7 @@ void Scene::update(float delta_time) {
     return;
 
   context_.getPhysicsEngine().update(delta_time);
+  context_.getCamera().update(delta_time);
 
   for (auto it = game_objects_.begin(); it != game_objects_.end();) {
     if (*it && !(*it)->isNeedRemove()) {

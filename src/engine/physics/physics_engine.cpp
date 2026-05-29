@@ -58,6 +58,8 @@ void PhysicsEngine::update(float delta_time) {
     pc->velocity_ = glm::clamp(pc->velocity_, -max_speed_, max_speed_);
 
     resolveTileCollisions(pc, delta_time);
+
+    applyWorldBounds(pc);
   }
 
   checkObjectCollisions();
@@ -150,6 +152,19 @@ void PhysicsEngine::resolveTileCollisions(
         new_obj_pos.x = tile_x * layer->getTileSize().x - obj_size.x;
         // hit wall, v.x set to 0
         pc->setVelocity({0.0f, pc->getVelocity().y});
+      } else {
+        // 检测右下角斜坡瓦片
+
+        auto width_right = new_obj_pos.x + obj_size.x - tile_x * tile_size.x;
+        auto height_right =
+            getTileHeightAtWidth(width_right, tile_type_bottom, tile_size);
+        if (height_right > 0.0f) {
+          if (new_obj_pos.y > (tile_y_bottom + 1) * layer->getTileSize().y -
+                                  obj_size.y - height_right) {
+            new_obj_pos.y = (tile_y_bottom + 1) * layer->getTileSize().y -
+                            obj_size.y - height_right;
+          }
+        }
       }
     } else if (ds.x < 0.0f) {
       auto left_top_x = new_obj_pos.x;
@@ -165,6 +180,17 @@ void PhysicsEngine::resolveTileCollisions(
         new_obj_pos.x = (tile_x + 1) * layer->getTileSize().x;
         // hit wall, v.x set to 0
         pc->setVelocity({0.0f, pc->getVelocity().y});
+      } else {
+        auto width_left = new_obj_pos.x - tile_x * tile_size.x;
+        auto height_left =
+            getTileHeightAtWidth(width_left, tile_type_bottom, tile_size);
+        if (height_left > 0.0f) {
+          if (new_obj_pos.y > (tile_y_bottom + 1) * layer->getTileSize().y -
+                                  obj_size.y - height_left) {
+            new_obj_pos.y = (tile_y_bottom + 1) * layer->getTileSize().y -
+                            obj_size.y - height_left;
+          }
+        }
       }
     }
 
@@ -178,9 +204,28 @@ void PhysicsEngine::resolveTileCollisions(
       auto tile_type_right = layer->getTileTypeAt({tile_x_right, tile_y});
 
       if (tile_type_left == component::TileType::SOLID ||
-          tile_type_right == component::TileType::SOLID) {
+          tile_type_right == component::TileType::SOLID ||
+          tile_type_left == component::TileType::UNISOLID ||
+          tile_type_right == component::TileType::UNISOLID) {
         new_obj_pos.y = tile_y * layer->getTileSize().y - obj_size.y;
         pc->setVelocity({pc->getVelocity().x, 0.0f});
+      } else {
+        // 下方两个角点都要检测
+        auto width_left = obj_pos.x - tile_x * tile_size.x;
+        auto width_right = obj_pos.x + obj_size.x - tile_x_right * tile_size.x;
+        auto height_left =
+            getTileHeightAtWidth(width_left, tile_type_left, tile_size);
+        auto height_right =
+            getTileHeightAtWidth(width_right, tile_type_right, tile_size);
+        auto height = glm::max(height_left, height_right);
+        if (height > 0.0f) {
+          if (new_obj_pos.y >
+              (tile_y + 1) * layer->getTileSize().y - obj_size.y - height) {
+            new_obj_pos.y =
+                (tile_y + 1) * layer->getTileSize().y - obj_size.y - height;
+            pc->velocity_.y = 0.0f; // 只有向下运动时才需要让y速度归零
+          }
+        }
       }
     } else if (ds.y < 0.0f) {
       auto top_left_y = new_obj_pos.y;
@@ -254,6 +299,57 @@ void PhysicsEngine::resolveSolidObjectCollisions(
         move_pc->velocity_.y = 0.0f; // if判断不可少否则可能出现错误吸附
     }
   }
+}
+
+float PhysicsEngine::getTileHeightAtWidth(float width,
+                                          engine::component::TileType type,
+                                          glm::vec2 tile_size) {
+  auto rel_x = glm::clamp(width / tile_size.x, 0.0f, 1.0f);
+  switch (type) {
+  case engine::component::TileType::SLOPE_0_1:
+    return rel_x * tile_size.y;
+  case engine::component::TileType::SLOPE_0_2:
+    return rel_x * tile_size.y * 0.5f;
+  case engine::component::TileType::SLOPE_2_1:
+    return rel_x * tile_size.y * 0.5f + tile_size.y * 0.5f;
+  case engine::component::TileType::SLOPE_1_0:
+    return (1.0f - rel_x) * tile_size.y;
+  case engine::component::TileType::SLOPE_2_0:
+    return (1.0f - rel_x) * tile_size.y * 0.5f;
+  case engine::component::TileType::SLOPE_1_2:
+    return (1.0f - rel_x) * tile_size.y * 0.5f + tile_size.y * 0.5f;
+  default:
+    return 0.0f;
+  }
+}
+
+void PhysicsEngine::applyWorldBounds(engine::component::PhysicsComponent *pc) {
+  if (!pc || !world_bounds_)
+    return;
+
+  auto *obj = pc->getOwner();
+  auto *cc = obj->getComponent<engine::component::ColliderComponent>();
+  auto *tc = obj->getComponent<engine::component::TransformComponent>();
+  auto world_aabb = cc->getWorldAABB();
+  auto obj_pos = world_aabb.position;
+  auto obj_size = world_aabb.size;
+
+  if (obj_pos.x < world_bounds_->position.x) {
+    pc->velocity_.x = 0.0f;
+    obj_pos.x = world_bounds_->position.x;
+  }
+  if (obj_pos.x + obj_size.x >
+      world_bounds_->position.x + world_bounds_->size.x) {
+    pc->velocity_.x = 0.0f;
+    obj_pos.x = world_bounds_->position.x + world_bounds_->size.x - obj_size.x;
+  }
+  if (obj_pos.y < world_bounds_->position.y) {
+    pc->velocity_.y = 0.0f;
+    obj_pos.y = world_bounds_->position.y;
+  }
+
+  // 不检测下边界,一般认为掉下去就是死了
+  tc->translate(obj_pos - world_aabb.position);
 }
 
 } // namespace engine::physics

@@ -21,9 +21,16 @@ namespace engine::component {
  * @brief 定义瓦片类型,用于游戏逻辑(i.e. 碰撞)
  */
 enum class TileType {
-  EMPTY,  // 空白瓦片
-  NORMAL, // 普通瓦片
-  SOLID,  // 静止可碰撞瓦片
+  EMPTY,     // 空白瓦片
+  NORMAL,    // 普通瓦片
+  SOLID,     // 静止可碰撞瓦片
+  UNISOLID,  // 单向静止可碰撞瓦片
+  SLOPE_0_1, // 斜坡瓦片,高度:左0, 右1
+  SLOPE_1_0, // 斜坡瓦片,高度:左1, 右0
+  SLOPE_0_2, // 斜坡瓦片,高度:左0, 右1/2
+  SLOPE_2_1, // 斜坡瓦片,高度:左1/2, 右1
+  SLOPE_1_2, // 斜坡瓦片,高度:左1, 右1/2
+  SLOPE_2_0, // 斜坡瓦片,高度:左1/2, 右0
   //...
 };
 

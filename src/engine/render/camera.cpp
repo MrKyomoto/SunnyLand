@@ -1,6 +1,8 @@
 #include "camera.h"
+#include "../component/transform_component.h"
 #include "../utils/math.h"
 #include <spdlog/spdlog.h>
+
 
 namespace engine::render {
 Camera::Camera(const glm::vec2 &viewport_size, const glm::vec2 &position,
@@ -10,7 +12,25 @@ Camera::Camera(const glm::vec2 &viewport_size, const glm::vec2 &position,
   spdlog::trace("Camera 初始化成功, 位置: {},{}", position_.x, position_.y);
 }
 void Camera::update(float delta_time) {
-  // TODO: 自动跟随目标
+  if (target_ == nullptr)
+    return;
+  glm::vec2 target_pos = target_->getPosition();
+  // 让目标位于视口中心
+  glm::vec2 desired_position = target_pos - viewport_size_ / 2.0f;
+  auto distance_ = glm::distance(position_, desired_position);
+  constexpr float SNAP_THRESHOLD =
+      1.0f; // 设置一个距离阈值, constexpr 编译时常量,避免每次调用都计算
+
+  if (distance_ < SNAP_THRESHOLD) {
+    position_ = desired_position;
+  } else {
+    // 否则使用线性插值平滑移动, (b-a) * t + a,t == 0 -> =a, t == 1 -> =b
+    position_ =
+        glm::mix(position_, desired_position, smooth_speed_ * delta_time);
+    position_ = glm::vec2(glm::round(position_.x), glm::round(position_.y));
+  }
+
+  clampPosition();
 }
 void Camera::move(const glm::vec2 &offset) {
   position_ += offset;

@@ -42,6 +42,16 @@ void GameScene::init() {
     return;
   }
 
+  auto* player_transform = player_->getComponent<engine::component::TransformComponent>();
+  if (player_transform) {
+    context_.getCamera().setTarget(player_transform);
+  }
+
+  auto world_size = main_layer->getComponent<engine::component::TileLayerComponent>()->getWorldSize();
+  context_.getCamera().setLimitBounds(engine::utils::Rect(glm::vec2(0.0f),world_size));
+
+  context_.getPhysicsEngine().setWorldBounds(engine::utils::Rect(glm::vec2(0.0f),world_size));
+
   Scene::init();
   spdlog::trace("GameScene is initialized");
 }
@@ -50,7 +60,6 @@ void GameScene::update(float delta_time) { Scene::update(delta_time); }
 void GameScene::render() { Scene::render(); }
 void GameScene::handleInput() {
   Scene::handleInput();
-  testCamera();
   testPlayer();
   testCollisionPairs();
 }

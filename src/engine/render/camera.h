@@ -2,6 +2,9 @@
 #include "../utils/math.h"
 #include <optional>
 
+namespace engine::component {
+class TransformComponent;
+}
 namespace engine::render {
 /**
  * @brief 相机类负责管理相机位置和视口大小,并提供坐标转换功能
@@ -14,6 +17,9 @@ private:
   glm::vec2 position_;
   /// @brief 限制相机的移动范围,空值表示不限制
   std::optional<engine::utils::Rect> limit_bounds_;
+
+  float smooth_speed_ = 5.0f; // 相机移动的平滑速度
+  engine::component::TransformComponent* target_ = nullptr;
 
 public:
   explicit Camera(
@@ -32,10 +38,12 @@ public:
 
   void setPosition(const glm::vec2 &position);
   void setLimitBounds(const engine::utils::Rect &bounds);
+  void setTarget(engine::component::TransformComponent* target){target_ = target;}
 
   const glm::vec2 &getPosition() const;
   std::optional<engine::utils::Rect> getLimitBounds() const;
   glm::vec2 getViewPortSize() const;
+  engine::component::TransformComponent* getTarget() const{return target_;}
 
   Camera(const Camera &) = delete;
   Camera &operator=(const Camera &) = delete;

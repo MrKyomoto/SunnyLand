@@ -351,6 +351,28 @@ LevelLoader::getTileType(const nlohmann::json &tile_json) {
         auto is_solid = property.value("value", false);
         return is_solid ? component::TileType::SOLID
                         : component::TileType::NORMAL;
+      } else if (property.contains("name") && property["name"] == "slope") {
+        auto slope_type = property.value("value", "");
+        if (slope_type == "0_1") {
+          return engine::component::TileType::SLOPE_0_1;
+        } else if (slope_type == "1_0") {
+          return engine::component::TileType::SLOPE_1_0;
+        } else if (slope_type == "0_2") {
+          return engine::component::TileType::SLOPE_0_2;
+        } else if (slope_type == "2_0") {
+          return engine::component::TileType::SLOPE_2_0;
+        } else if (slope_type == "2_1") {
+          return engine::component::TileType::SLOPE_2_1;
+        } else if (slope_type == "1_2") {
+          return engine::component::TileType::SLOPE_1_2;
+        } else {
+          spdlog::error("Unknown slope type: {}", slope_type);
+          return engine::component::TileType::NORMAL;
+        }
+      } else if (property.contains("name") && property["name"] == "unisolid") {
+        auto is_unisolid = property.value("value", false);
+        return is_unisolid ? engine::component::TileType::UNISOLID
+                           : engine::component::TileType::NORMAL;
       }
     }
   }
