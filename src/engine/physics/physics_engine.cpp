@@ -45,6 +45,8 @@ void PhysicsEngine::update(float delta_time) {
       continue;
     }
 
+    pc->resetCollisionFlags();
+
     // F = g * m
     if (pc->isUserGravity()) {
       pc->addForce(gravity_ * pc->getMass());
@@ -152,6 +154,7 @@ void PhysicsEngine::resolveTileCollisions(
         new_obj_pos.x = tile_x * layer->getTileSize().x - obj_size.x;
         // hit wall, v.x set to 0
         pc->setVelocity({0.0f, pc->getVelocity().y});
+        pc->setCollidedRight(true);
       } else {
         // 检测右下角斜坡瓦片
 
@@ -163,6 +166,7 @@ void PhysicsEngine::resolveTileCollisions(
                                   obj_size.y - height_right) {
             new_obj_pos.y = (tile_y_bottom + 1) * layer->getTileSize().y -
                             obj_size.y - height_right;
+            pc->setCollidedBelow(true);
           }
         }
       }
@@ -180,6 +184,7 @@ void PhysicsEngine::resolveTileCollisions(
         new_obj_pos.x = (tile_x + 1) * layer->getTileSize().x;
         // hit wall, v.x set to 0
         pc->setVelocity({0.0f, pc->getVelocity().y});
+        pc->setCollidedLeft(true);
       } else {
         auto width_left = new_obj_pos.x - tile_x * tile_size.x;
         auto height_left =
@@ -189,6 +194,7 @@ void PhysicsEngine::resolveTileCollisions(
                                   obj_size.y - height_left) {
             new_obj_pos.y = (tile_y_bottom + 1) * layer->getTileSize().y -
                             obj_size.y - height_left;
+            pc->setCollidedBelow(true);
           }
         }
       }
@@ -209,6 +215,7 @@ void PhysicsEngine::resolveTileCollisions(
           tile_type_right == component::TileType::UNISOLID) {
         new_obj_pos.y = tile_y * layer->getTileSize().y - obj_size.y;
         pc->setVelocity({pc->getVelocity().x, 0.0f});
+        pc->setCollidedBelow(true);
       } else {
         // 下方两个角点都要检测
         auto width_left = obj_pos.x - tile_x * tile_size.x;
@@ -224,6 +231,7 @@ void PhysicsEngine::resolveTileCollisions(
             new_obj_pos.y =
                 (tile_y + 1) * layer->getTileSize().y - obj_size.y - height;
             pc->velocity_.y = 0.0f; // 只有向下运动时才需要让y速度归零
+            pc->setCollidedBelow(true);
           }
         }
       }
@@ -240,6 +248,7 @@ void PhysicsEngine::resolveTileCollisions(
           tile_type_right == component::TileType::SOLID) {
         new_obj_pos.y = (tile_y + 1) * layer->getTileSize().y;
         pc->setVelocity({pc->getVelocity().x, 0.0f});
+        pc->setCollidedAbove(true);
       }
     }
   }

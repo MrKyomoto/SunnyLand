@@ -220,7 +220,7 @@ void LevelLoader::loadObjectLayer(const nlohmann::json &object_json,
         game_object->addComponent<engine::component::PhysicsComponent>(
             &scene.getContext().getPhysicsEngine(), false);
         game_object->setTag("solid");
-      } else if (auto rect = getColliderRect(tile_json); rect) {
+      } else if (auto rect = getColliderRect(tile_json.value()); rect) {
         auto collider =
             std::make_unique<engine::physics::AABBCollider>(rect->size);
         auto *cc =
@@ -232,11 +232,11 @@ void LevelLoader::loadObjectLayer(const nlohmann::json &object_json,
             &scene.getContext().getPhysicsEngine(), false);
       }
 
-      auto tag = getTileProperty<std::string>(tile_json, "tag");
+      auto tag = getTileProperty<std::string>(tile_json.value(), "tag");
       if (tag) {
         game_object->setTag(tag.value());
       }
-      auto gravity = getTileProperty<bool>(tile_json, "gravity");
+      auto gravity = getTileProperty<bool>(tile_json.value(), "gravity");
       if (gravity) {
         auto pc =
             game_object->getComponent<engine::component::PhysicsComponent>();

@@ -28,6 +28,12 @@ private:
   bool use_gravity_ = true;
   bool enabled_ = true;
 
+  // 碰撞状态标志
+  bool collided_below_ = false;
+  bool collided_above_ = false;
+  bool collided_left_ = false;
+  bool collided_right_ = false;
+
 public:
   PhysicsComponent(engine::physics::PhysicsEngine *physics_engine,
                    bool use_gravity = true, float mass = 1.0f);
@@ -54,6 +60,23 @@ public:
   void setVelocity(const glm::vec2 &velocity) { velocity_ = velocity; }
   const glm::vec2 &getVelocity() const { return velocity_; }
   TransformComponent *getTransfrom() const { return transform_; }
+
+  void resetCollisionFlags() {
+    collided_above_ = false;
+    collided_below_ = false;
+    collided_right_ = false;
+    collided_left_ = false;
+  }
+
+  void setCollidedBelow(bool collided){collided_below_ = collided;}
+  void setCollidedAbove(bool collided){collided_above_ = collided;}
+  void setCollidedLeft(bool collided){collided_left_ = collided;}
+  void setCollidedRight(bool collided){collided_right_ = collided;}
+
+  bool hasCollidedBelow() const {return collided_below_;}
+  bool hasCollidedAbove() const {return collided_above_;}
+  bool hasCollidedLeft() const {return collided_left_;}
+  bool hasCollidedRight() const {return collided_right_;}
 
 private:
   void init() override;

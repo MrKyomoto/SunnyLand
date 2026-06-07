@@ -22,10 +22,10 @@ public:
   void render() override;
   void handleInput() override;
   void clean() override;
+  [[nodiscard]] bool initLevel();
+  [[nodiscard]] bool initPlayer();
 
 private:
-  void testCamera();
-  void testPlayer();
   void testCollisionPairs();
 };
 
