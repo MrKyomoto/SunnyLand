@@ -22,11 +22,13 @@ public:
   void render() override;
   void handleInput() override;
   void clean() override;
-  [[nodiscard]] bool initLevel();
-  [[nodiscard]] bool initPlayer();
 
 private:
   void testCollisionPairs();
+
+  [[nodiscard]] bool initLevel();
+  [[nodiscard]] bool initPlayer();
+  [[nodiscard]] bool initEnemyAndItem();
 };
 
 } // namespace game::scene

@@ -67,6 +67,9 @@ add_executable(${TARGET}
                     src/game/component/state/walk_state.cpp
                     src/game/component/state/jump_state.cpp
                     src/game/component/state/fall_state.cpp
+                    src/engine/render/animation.cpp
+                    src/engine/component/animation_component.cpp
+                    src/game/component/state/player_state.cpp
                                 )
 
 # 链接库

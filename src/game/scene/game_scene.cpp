@@ -1,4 +1,5 @@
 #include "game_scene.h"
+#include "../../engine/component/animation_component.h"
 #include "../../engine/component/collider_component.h"
 #include "../../engine/component/physics_component.h"
 #include "../../engine/component/sprite_component.h"
@@ -42,7 +43,11 @@ void GameScene::init() {
     context_.getInputManager().setShouldQuit(true);
     return;
   }
-
+  if (!initEnemyAndItem()) {
+    spdlog::error("敌人和道具初始化失败,无法继续");
+    context_.getInputManager().setShouldQuit(true);
+    return;
+  }
   Scene::init();
   spdlog::trace("GameScene is initialized");
 }
@@ -105,6 +110,64 @@ bool GameScene::initPlayer() {
 
   spdlog::trace("玩家初始化完成");
   return true;
+}
+
+bool GameScene::initEnemyAndItem() {
+  bool success = true;
+  for (auto &game_object : game_objects_) {
+    if (game_object->getName() == "eagle") {
+      if (auto *ac =
+              game_object
+                  ->getComponent<engine::component::AnimationComponent>();
+          ac) {
+        ac->playAnimation("fly");
+      } else {
+        spdlog::error("Eagle 对象缺少 AnimationComponent,无法播放动画");
+        success = false;
+      }
+      continue;
+    }
+
+    if (game_object->getName() == "frog") {
+      if (auto *ac =
+              game_object
+                  ->getComponent<engine::component::AnimationComponent>();
+          ac) {
+        ac->playAnimation("idle");
+      } else {
+        spdlog::error("Frog 对象缺少 AnimationComponent,无法播放动画");
+        success = false;
+      }
+      continue;
+    }
+    if (game_object->getName() == "opossum") {
+      if (auto *ac =
+              game_object
+                  ->getComponent<engine::component::AnimationComponent>();
+          ac) {
+        ac->playAnimation("walk");
+      } else {
+        spdlog::error("Opossum 对象缺少 AnimationComponent,无法播放动画");
+        success = false;
+      }
+      continue;
+    }
+    // 物品有同样的item标签所以可以通过这个获取
+    if (game_object->getTag() == "item") {
+      if (auto *ac =
+              game_object
+                  ->getComponent<engine::component::AnimationComponent>();
+          ac) {
+        ac->playAnimation("idle");
+      } else {
+        spdlog::error("Item 对象缺少 AnimationComponent,无法播放动画");
+        success = false;
+      }
+      continue;
+    }
+  }
+
+  return success;
 }
 
 void GameScene::update(float delta_time) { Scene::update(delta_time); }

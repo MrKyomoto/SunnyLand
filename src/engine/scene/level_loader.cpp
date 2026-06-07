@@ -1,4 +1,5 @@
 #include "level_loader.h"
+#include "../component/animation_component.h"
 #include "../component/collider_component.h"
 #include "../component/parallax_component.h"
 #include "../component/physics_component.h"
@@ -9,6 +10,7 @@
 #include "../object/game_object.h"
 #include "../physics/collider.h"
 #include "../physics/physics_engine.h"
+#include "../render/animation.h"
 #include "../render/sprite.h"
 #include "../scene/scene.h"
 #include <filesystem>
@@ -251,9 +253,67 @@ void LevelLoader::loadObjectLayer(const nlohmann::json &object_json,
         }
       }
 
+      auto anim_string =
+          getTileProperty<std::string>(tile_json.value(), "animation");
+      if (anim_string) {
+        nlohmann::json anim_json;
+        try {
+          anim_json = nlohmann::json::parse(anim_string.value());
+        } catch (const nlohmann::json::parse_error &e) {
+          spdlog::error("Parsing anim JSON string failed: {}", e.what());
+          continue; // 跳过此对象
+        }
+
+        auto *ac =
+            game_object->addComponent<engine::component::AnimationComponent>();
+        addAnimation(anim_json, ac, src_size);
+      }
+
       scene.addGameObject(std::move(game_object));
       spdlog::info("加载对象: '{}' 完成", object_name);
     }
+  }
+}
+
+void LevelLoader::addAnimation(const nlohmann::json &anim_json,
+                               engine::component::AnimationComponent *ac,
+                               const glm::vec2 &sprite_size) {
+  if (!anim_json.is_object() || !ac) {
+    spdlog::error("无效的动画 JSON 或 AnimationComponent 指针");
+    return;
+  }
+
+  for (const auto &anim : anim_json.items()) {
+    const string &anim_name = anim.key();
+    const auto &anim_info = anim.value();
+    if (!anim_info.is_object()) {
+      spdlog::warn("动画 '{}' 的信息无效或为空", anim_name);
+      continue;
+    }
+
+    auto duration_ms = anim_info.value("duration", 100);
+    auto duration = static_cast<float>(duration_ms) / 1000.0f; // 转换为s
+    auto row = anim_info.value("row", 0);
+    if (!anim_info.contains("frames") || !anim_info["frames"].is_array()) {
+      spdlog::warn("动画 '{}' 缺少 'frames' 数组", anim_name);
+      continue;
+    }
+
+    auto animation = std::make_unique<engine::render::Animation>(anim_name);
+
+    for (const auto &frame : anim_info["frames"]) {
+      if (!frame.is_number_integer()) {
+        spdlog::warn("动画 {} 中 frames 数组格式错误", anim_name);
+        continue;
+      }
+
+      auto column = frame.get<int>();
+      SDL_FRect src_rect = {column * sprite_size.x, row * sprite_size.y,
+                            sprite_size.x, sprite_size.y};
+      animation->addFrame(src_rect, duration);
+    }
+
+    ac->addAnimation(std::move(animation));
   }
 }
 

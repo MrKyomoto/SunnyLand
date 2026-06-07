@@ -13,6 +13,7 @@
 
 namespace game::component::state {
 void JumpState::enter() {
+  playAnimation("jump");
   auto physics_component = player_component_->getPhysicsComponent();
   physics_component->velocity_.y = -player_component_->getJumpForce();
 }

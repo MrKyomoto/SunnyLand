@@ -9,7 +9,7 @@
 #include <spdlog/spdlog.h>
 
 namespace game::component::state {
-void IdleState::enter() {}
+void IdleState::enter() { playAnimation("idle"); }
 void IdleState::exit() {}
 
 std::unique_ptr<PlayerState>

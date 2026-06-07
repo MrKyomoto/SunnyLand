@@ -11,7 +11,7 @@
 #include <spdlog/spdlog.h>
 
 namespace game::component::state {
-void WalkState::enter() {}
+void WalkState::enter() { playAnimation("walk"); }
 void WalkState::exit() {}
 
 std::unique_ptr<PlayerState>
