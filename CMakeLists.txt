@@ -70,6 +70,7 @@ add_executable(${TARGET}
                     src/engine/render/animation.cpp
                     src/engine/component/animation_component.cpp
                     src/game/component/state/player_state.cpp
+                    src/engine/component/health_component.cpp
                                 )
 
 # 链接库
