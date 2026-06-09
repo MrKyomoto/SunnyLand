@@ -73,6 +73,9 @@ add_executable(${TARGET}
                     src/engine/component/health_component.cpp
                     src/game/component/state/hurt_state.cpp
                     src/game/component/state/dead_state.cpp
+                    src/game/component/ai/ai_behavior.h
+                    src/game/component/ai_component.cpp
+                    src/game/component/ai/patrol_behavior.cpp
                                 )
 
 # 链接库
