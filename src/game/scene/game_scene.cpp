@@ -209,11 +209,15 @@ void GameScene::handleObjectCollisions() {
     } else if (obj2->getName() == "player" && obj1->getTag() == "item") {
       PlayerVSItem(obj2, obj1);
     } else if (obj1->getName() == "player" && obj2->getTag() == "hazard") {
-      obj1->getComponent<game::component::PlayerComponent>()->takeDamage(1);
-      spdlog::debug("Player {} 收到了 Hazard 对象伤害",obj1->getName());
+      if (obj1->getComponent<game::component::PlayerComponent>()->takeDamage(
+              1)) {
+        spdlog::debug("Player {} 收到了 Hazard 对象伤害", obj1->getName());
+      }
     } else if (obj2->getName() == "player" && obj1->getTag() == "hazard") {
-      obj2->getComponent<game::component::PlayerComponent>()->takeDamage(1);
-      spdlog::debug("Player {} 收到了 Hazard 对象伤害",obj2->getName());
+      if (obj2->getComponent<game::component::PlayerComponent>()->takeDamage(
+              1)) {
+        spdlog::debug("Player {} 收到了 Hazard 对象伤害", obj2->getName());
+      }
     }
   }
 }

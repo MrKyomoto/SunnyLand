@@ -148,7 +148,6 @@ void PhysicsEngine::checkTileTriggers() {
         for (int y = start_y; y < end_y; y++) {
           auto tile_type = layer->getTileTypeAt({x, y});
           if (tile_type == engine::component::TileType::HAZARD) {
-            spdlog::debug("Find Hazard Tile");
             triggers_set.insert(tile_type);
           }
         }
