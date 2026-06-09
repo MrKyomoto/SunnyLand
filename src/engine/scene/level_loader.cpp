@@ -359,11 +359,11 @@ engine::component::TileInfo LevelLoader::getTileInfoByGid(int gid) {
     auto texture_id =
         resolvePath(tileset["image"].get<std::string>(), file_path);
     // 计算瓦片在图片网格中的坐标
-    auto corrdinate_x = local_id % tileset["columns"].get<int>();
-    auto corrdinate_y = local_id / tileset["columns"].get<int>();
+    auto coordinate_x = local_id % tileset["columns"].get<int>();
+    auto coordinate_y = local_id / tileset["columns"].get<int>();
     SDL_FRect texture_rect = {
-        static_cast<float>(corrdinate_x * tile_size_.x),
-        static_cast<float>(corrdinate_y * tile_size_.y),
+        static_cast<float>(coordinate_x * tile_size_.x),
+        static_cast<float>(coordinate_y * tile_size_.y),
         static_cast<float>(tile_size_.x),
         static_cast<float>(tile_size_.y),
     };
