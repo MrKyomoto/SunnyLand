@@ -71,6 +71,8 @@ add_executable(${TARGET}
                     src/engine/component/animation_component.cpp
                     src/game/component/state/player_state.cpp
                     src/engine/component/health_component.cpp
+                    src/game/component/state/hurt_state.cpp
+                    src/game/component/state/dead_state.cpp
                                 )
 
 # 链接库

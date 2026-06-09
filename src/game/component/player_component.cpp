@@ -1,11 +1,14 @@
 #include "player_component.h"
 #include "../../engine/component/animation_component.h"
+#include "../../engine/component/health_component.h"
 #include "../../engine/component/physics_component.h"
 #include "../../engine/component/sprite_component.h"
 #include "../../engine/component/transform_component.h"
 #include "../../engine/input/input_manager.h"
 #include "../../engine/object/game_object.h"
+#include "state/dead_state.h"
 #include "state/fall_state.h"
+#include "state/hurt_state.h"
 #include "state/idle_state.h"
 #include "state/jump_state.h"
 #include "state/walk_state.h"
@@ -27,8 +30,11 @@ void PlayerComponent::init() {
       owner_->getComponent<engine::component::SpriteComponent>();
   animation_component_ =
       owner_->getComponent<engine::component::AnimationComponent>();
+  health_component_ =
+      owner_->getComponent<engine::component::HealthComponent>();
 
-  if (!transform_component_ || !physics_component_ || !sprite_component_ || !animation_component_) {
+  if (!transform_component_ || !physics_component_ || !sprite_component_ ||
+      !animation_component_ || !health_component_) {
     spdlog::error("Player 对象缺少必要组件");
     return;
   }
@@ -40,6 +46,24 @@ void PlayerComponent::init() {
     spdlog::error("初始化玩家状态失败(make_unique返回空指针)");
   }
   spdlog::debug("PlayerComponent 初始化成功");
+}
+
+bool PlayerComponent::takeDamage(int damage) {
+  if (is_dead_ || !health_component_ || damage <= 0) {
+    return false;
+  }
+
+  bool success = health_component_->takeDamage(damage);
+  if (!success)
+    return false;
+
+  if (health_component_->isAlive()) {
+    setState(std::make_unique<state::HurtState>(this));
+  } else {
+    is_dead_ = true;
+    setState(std::make_unique<state::DeadState>(this));
+  }
+  return true;
 }
 
 void PlayerComponent::setState(std::unique_ptr<state::PlayerState> new_state) {

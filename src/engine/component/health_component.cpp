@@ -5,7 +5,8 @@
 namespace engine::component {
 
 HealthComponent::HealthComponent(int max_health, float invincibility_duration)
-    : max_health_(max_health), invincibility_duration_(invincibility_duration) {
+    : max_health_(max_health), current_health_(max_health),
+      invincibility_duration_(invincibility_duration) {
   spdlog::trace("HealthComponent 构造成功");
 }
 

@@ -1,6 +1,7 @@
 #include "game_scene.h"
 #include "../../engine/component/animation_component.h"
 #include "../../engine/component/collider_component.h"
+#include "../../engine/component/health_component.h"
 #include "../../engine/component/physics_component.h"
 #include "../../engine/component/sprite_component.h"
 #include "../../engine/component/tilelayer_component.h"
@@ -9,6 +10,7 @@
 #include "../../engine/input/input_manager.h"
 #include "../../engine/object/game_object.h"
 #include "../../engine/physics/physics_engine.h"
+#include "../../engine/render/animation.h"
 #include "../../engine/render/camera.h"
 #include "../../engine/scene/level_loader.h"
 #include "../component/player_component.h"
@@ -170,11 +172,16 @@ bool GameScene::initEnemyAndItem() {
   return success;
 }
 
-void GameScene::update(float delta_time) { Scene::update(delta_time); }
+void GameScene::update(float delta_time) {
+  Scene::update(delta_time);
+  handleObjectCollisions();
+}
+
 void GameScene::render() { Scene::render(); }
 void GameScene::handleInput() {
   Scene::handleInput();
-  testCollisionPairs();
+  // testCollisionPairs();
+  testHealth();
 }
 void GameScene::clean() { Scene::clean(); }
 
@@ -183,6 +190,120 @@ void GameScene::testCollisionPairs() {
   for (auto &pair : collision_pairs) {
     spdlog::info("碰撞对 {} 和 {}", pair.first->getName(),
                  pair.second->getName());
+  }
+}
+
+void GameScene::handleObjectCollisions() {
+  auto collision_pairs = context_.getPhysicsEngine().getCollisionPairs();
+  for (const auto &pair : collision_pairs) {
+    auto *obj1 = pair.first;
+    auto *obj2 = pair.second;
+
+    if (obj1->getName() == "player" && obj2->getTag() == "enemy") {
+      PlayerVSEnemyCollision(obj1, obj2);
+    } else if (obj2->getName() == "player" && obj1->getTag() == "enemy") {
+      PlayerVSEnemyCollision(obj2, obj1);
+    } else if (obj1->getName() == "player" && obj2->getTag() == "item") {
+      PlayerVSItem(obj1, obj2);
+    } else if (obj2->getName() == "player" && obj1->getTag() == "item") {
+      PlayerVSItem(obj2, obj1);
+    }
+  }
+}
+
+void GameScene::PlayerVSEnemyCollision(engine::object::GameObject *player,
+                                       engine::object::GameObject *enemy) {
+  auto player_aabb =
+      player->getComponent<engine::component::ColliderComponent>()
+          ->getWorldAABB();
+  auto enemy_aabb = enemy->getComponent<engine::component::ColliderComponent>()
+                        ->getWorldAABB();
+  auto player_center = player_aabb.position + player_aabb.size / 2.0f;
+  auto enemy_center = enemy_aabb.position + enemy_aabb.size / 2.0f;
+
+  auto overlap = glm::vec2(player_aabb.size / 2.0f + enemy_aabb.size / 2.0f) -
+                 glm::abs(player_center - enemy_center);
+
+  // NOTE: 踩头才算有效攻击
+  if (overlap.x > overlap.y && player_center.y < enemy_center.y) {
+    spdlog::info("Player {} 踩塌了 Enemy {}", player->getName(),
+                 enemy->getName());
+    auto enemy_health =
+        enemy->getComponent<engine::component::HealthComponent>();
+    if (!enemy_health) {
+      spdlog::error("Enemy {} 缺少 HealthComponent 组件", enemy->getName());
+      return;
+    }
+
+    enemy_health->takeDamage(1);
+    if (!enemy_health->isAlive()) {
+      enemy->setNeedRemove(true);
+      createEffect(enemy_center, enemy->getTag());
+    }
+
+    // 反弹跳跃效果
+    player->getComponent<engine::component::PhysicsComponent>()->velocity_.y =
+        -300.0f;
+  } else {
+    // NOTE: 踩踏判断失败,玩家受伤
+    player->getComponent<engine::component::HealthComponent>()->takeDamage(1);
+  }
+}
+
+void GameScene::PlayerVSItem(engine::object::GameObject *player,
+                             engine::object::GameObject *item) {
+  if (item->getName() == "fruit") {
+    player->getComponent<engine::component::HealthComponent>()->heal(1);
+  } else if (item->getName() == "gem") {
+    // TODO: score++
+  }
+
+  item->setNeedRemove(true);
+  auto item_aabb = item->getComponent<engine::component::ColliderComponent>()
+                       ->getWorldAABB();
+  createEffect(item_aabb.position + item_aabb.size / 2.0f, item->getTag());
+}
+
+void GameScene::createEffect(const glm::vec2 &center_pos,
+                             const std::string &tag) {
+  auto effect_obj =
+      std::make_unique<engine::object::GameObject>("effect_" + tag);
+  effect_obj->addComponent<engine::component::TransformComponent>(center_pos);
+
+  auto animation = std::make_unique<engine::render::Animation>("effect", false);
+  if (tag == "enemy") {
+    effect_obj->addComponent<engine::component::SpriteComponent>(
+        "assets/textures/FX/enemy-death.png", context_.getResourceManager(),engine::utils::Alignment::CENTER);
+
+    for (int i = 0; i < 5; i++) {
+      animation->addFrame({static_cast<float>(i * 40), 0.0f, 40.0f, 41.0f},
+                          0.1f);
+    }
+  } else if (tag == "item") {
+    effect_obj->addComponent<engine::component::SpriteComponent>(
+        "assets/textures/FX/item-feedback.png", context_.getResourceManager(),engine::utils::Alignment::CENTER);
+
+    for (int i = 0; i < 4; i++) {
+      animation->addFrame({static_cast<float>(i * 32), 0.0f, 32.0f, 32.0f},
+                          0.1f);
+    }
+  } else {
+    return;
+  }
+
+  auto *animation_component =
+      effect_obj->addComponent<engine::component::AnimationComponent>();
+  animation_component->addAnimation(std::move(animation));
+  animation_component->setOneShotRemoval(true);
+  animation_component->playAnimation("effect");
+
+  safeAddGameObject(std::move(effect_obj));
+}
+
+void GameScene::testHealth() {
+  auto input_manager = context_.getInputManager();
+  if (input_manager.isActionPressed("attack")) {
+    player_->getComponent<game::component::PlayerComponent>()->takeDamage(1);
   }
 }
 

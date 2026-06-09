@@ -12,6 +12,7 @@ class TransformComponent;
 class PhysicsComponent;
 class SpriteComponent;
 class AnimationComponent;
+class HealthComponent;
 } // namespace engine::component
 
 namespace game::component::state {
@@ -27,7 +28,8 @@ private:
   engine::component::TransformComponent *transform_component_ = nullptr;
   engine::component::PhysicsComponent *physics_component_ = nullptr;
   engine::component::SpriteComponent *sprite_component_ = nullptr;
-  engine::component::AnimationComponent* animation_component_ = nullptr;
+  engine::component::AnimationComponent *animation_component_ = nullptr;
+  engine::component::HealthComponent *health_component_ = nullptr;
 
   std::unique_ptr<state::PlayerState> current_state_;
   bool is_dead_ = false;
@@ -36,6 +38,8 @@ private:
   float max_speed_ = 120.0f;
   float friction_factor_ = 0.85f;
   float jump_force_ = 350.0f;
+
+  float stunned_duration_ = 0.4f; // (s)
 
 public:
   PlayerComponent() = default;
@@ -58,6 +62,9 @@ public:
   }
   engine::component::AnimationComponent *getAnimationComponent() const {
     return animation_component_;
+  }
+  engine::component::HealthComponent *getHealthComponent() const {
+    return health_component_;
   }
 
   void setIsDead(bool is_dead) {
@@ -82,9 +89,16 @@ public:
     jump_force_ = jump_force;
   } ///< @brief 设置跳跃力
   float getJumpForce() const { return jump_force_; }
+  float getStunnedDuration() const { return stunned_duration_; }
+  void setStunnedDuration(float stunned_duration) {
+    stunned_duration_ = stunned_duration;
+  }
 
   void setState(
       std::unique_ptr<state::PlayerState> new_state); ///< @brief 切换玩家状态
+
+
+  bool takeDamage(int damage);
 
 private:
   void init() override;

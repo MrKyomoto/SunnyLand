@@ -118,7 +118,7 @@ void PhysicsEngine::resolveTileCollisions(
     return;
   auto *tc = obj->getComponent<engine::component::TransformComponent>();
   auto *cc = obj->getComponent<engine::component::ColliderComponent>();
-  if (!tc || !cc || !cc->isActive() || cc->isTrigger())
+  if (!tc || !cc || cc->isTrigger())
     return;
 
   auto world_aabb = cc->getWorldAABB();
@@ -131,6 +131,12 @@ void PhysicsEngine::resolveTileCollisions(
   auto tolerance = 1.0f;
   auto ds = pc->getVelocity() * delta_time;
   auto new_obj_pos = obj_pos + ds;
+
+  if (!cc->isActive()) {
+    tc->translate(ds);
+    pc->velocity_ = glm::clamp(pc->velocity_, -max_speed_, max_speed_);
+    return;
+  }
 
   for (auto *layer : collision_tile_layers_) {
     if (!layer)

@@ -5,7 +5,6 @@
 #include "../../../engine/input/input_manager.h"
 #include "../player_component.h"
 #include "idle_state.h"
-#include "jump_state.h"
 #include "walk_state.h"
 #include <glm/common.hpp>
 #include <spdlog/spdlog.h>

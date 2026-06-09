@@ -1,6 +1,7 @@
 #include "level_loader.h"
 #include "../component/animation_component.h"
 #include "../component/collider_component.h"
+#include "../component/health_component.h"
 #include "../component/parallax_component.h"
 #include "../component/physics_component.h"
 #include "../component/sprite_component.h"
@@ -18,6 +19,7 @@
 #include <glm/vec4.hpp>
 #include <nlohmann/json.hpp>
 #include <spdlog/spdlog.h>
+
 
 namespace engine::scene {
 
@@ -267,6 +269,12 @@ void LevelLoader::loadObjectLayer(const nlohmann::json &object_json,
         auto *ac =
             game_object->addComponent<engine::component::AnimationComponent>();
         addAnimation(anim_json, ac, src_size);
+      }
+
+      auto health = getTileProperty<int>(tile_json.value(), "health");
+      if (health.has_value()) {
+        game_object->addComponent<engine::component::HealthComponent>(
+            health.value());
       }
 
       scene.addGameObject(std::move(game_object));
