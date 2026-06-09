@@ -120,6 +120,9 @@ void SpriteComponent::updateOffset() {
   case engine::utils::Alignment::TOP_RIGHT:
     offset_ = glm::vec2{-sprite_size_.x, 0.0f} * scale;
     break;
+  case engine::utils::Alignment::CENTER:
+    offset_ = glm::vec2{-sprite_size_.x / 2.0f, -sprite_size_.y / 2.0f} * scale;
+    break;
   case engine::utils::Alignment::CENTER_LEFT:
     offset_ = glm::vec2{0.0f, -sprite_size_.y / 2.0f} * scale;
     break;

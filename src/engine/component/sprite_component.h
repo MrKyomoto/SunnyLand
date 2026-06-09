@@ -59,7 +59,7 @@ public:
   // Getters
   const engine::render::Sprite &getSprite() const { return sprite_; }
   const std::string &getTextureID() const { return sprite_.getTextureID(); }
-  bool ifFlipped() const { return sprite_.isFlipped(); }
+  bool isFlipped() const { return sprite_.isFlipped(); }
   bool isHidden() const { return is_hidden_; }
   const glm::vec2 &getSpriteSize() const { return sprite_size_; }
   const glm::vec2 &getOffset() const { return offset_; }
