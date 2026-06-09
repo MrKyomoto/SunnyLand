@@ -175,6 +175,7 @@ bool GameScene::initEnemyAndItem() {
 void GameScene::update(float delta_time) {
   Scene::update(delta_time);
   handleObjectCollisions();
+  handleTileTriggers();
 }
 
 void GameScene::render() { Scene::render(); }
@@ -207,6 +208,12 @@ void GameScene::handleObjectCollisions() {
       PlayerVSItem(obj1, obj2);
     } else if (obj2->getName() == "player" && obj1->getTag() == "item") {
       PlayerVSItem(obj2, obj1);
+    } else if (obj1->getName() == "player" && obj2->getTag() == "hazard") {
+      obj1->getComponent<game::component::PlayerComponent>()->takeDamage(1);
+      spdlog::debug("Player {} 收到了 Hazard 对象伤害",obj1->getName());
+    } else if (obj2->getName() == "player" && obj1->getTag() == "hazard") {
+      obj2->getComponent<game::component::PlayerComponent>()->takeDamage(1);
+      spdlog::debug("Player {} 收到了 Hazard 对象伤害",obj2->getName());
     }
   }
 }
@@ -246,7 +253,7 @@ void GameScene::PlayerVSEnemyCollision(engine::object::GameObject *player,
         -300.0f;
   } else {
     // NOTE: 踩踏判断失败,玩家受伤
-    player->getComponent<engine::component::HealthComponent>()->takeDamage(1);
+    player->getComponent<game::component::PlayerComponent>()->takeDamage(1);
   }
 }
 
@@ -273,7 +280,8 @@ void GameScene::createEffect(const glm::vec2 &center_pos,
   auto animation = std::make_unique<engine::render::Animation>("effect", false);
   if (tag == "enemy") {
     effect_obj->addComponent<engine::component::SpriteComponent>(
-        "assets/textures/FX/enemy-death.png", context_.getResourceManager(),engine::utils::Alignment::CENTER);
+        "assets/textures/FX/enemy-death.png", context_.getResourceManager(),
+        engine::utils::Alignment::CENTER);
 
     for (int i = 0; i < 5; i++) {
       animation->addFrame({static_cast<float>(i * 40), 0.0f, 40.0f, 41.0f},
@@ -281,7 +289,8 @@ void GameScene::createEffect(const glm::vec2 &center_pos,
     }
   } else if (tag == "item") {
     effect_obj->addComponent<engine::component::SpriteComponent>(
-        "assets/textures/FX/item-feedback.png", context_.getResourceManager(),engine::utils::Alignment::CENTER);
+        "assets/textures/FX/item-feedback.png", context_.getResourceManager(),
+        engine::utils::Alignment::CENTER);
 
     for (int i = 0; i < 4; i++) {
       animation->addFrame({static_cast<float>(i * 32), 0.0f, 32.0f, 32.0f},
@@ -298,6 +307,20 @@ void GameScene::createEffect(const glm::vec2 &center_pos,
   animation_component->playAnimation("effect");
 
   safeAddGameObject(std::move(effect_obj));
+}
+
+void GameScene::handleTileTriggers() {
+  const auto &tile_trigger_events =
+      context_.getPhysicsEngine().getTileTriggerEvents();
+  for (const auto &event : tile_trigger_events) {
+    auto *obj = event.first;
+    auto tile_type = event.second;
+    if (tile_type == engine::component::TileType::HAZARD) {
+      if (obj->getName() == "player") {
+        obj->getComponent<game::component::PlayerComponent>()->takeDamage(1);
+      }
+    }
+  }
 }
 
 void GameScene::testHealth() {

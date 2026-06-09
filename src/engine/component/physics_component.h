@@ -52,7 +52,7 @@ public:
   const glm::vec2 &getForce() const { return force_; }
   float getMass() const { return mass_; }
   bool isEnabled() const { return enabled_; }
-  bool isUserGravity() const { return use_gravity_; }
+  bool isUseGravity() const { return use_gravity_; }
 
   void setEnabled(bool enabled) { enabled_ = enabled; }
   void setMass(float mass) { mass_ = (mass >= 0.0f) ? mass : 1.0f; }
@@ -68,15 +68,15 @@ public:
     collided_left_ = false;
   }
 
-  void setCollidedBelow(bool collided){collided_below_ = collided;}
-  void setCollidedAbove(bool collided){collided_above_ = collided;}
-  void setCollidedLeft(bool collided){collided_left_ = collided;}
-  void setCollidedRight(bool collided){collided_right_ = collided;}
+  void setCollidedBelow(bool collided) { collided_below_ = collided; }
+  void setCollidedAbove(bool collided) { collided_above_ = collided; }
+  void setCollidedLeft(bool collided) { collided_left_ = collided; }
+  void setCollidedRight(bool collided) { collided_right_ = collided; }
 
-  bool hasCollidedBelow() const {return collided_below_;}
-  bool hasCollidedAbove() const {return collided_above_;}
-  bool hasCollidedLeft() const {return collided_left_;}
-  bool hasCollidedRight() const {return collided_right_;}
+  bool hasCollidedBelow() const { return collided_below_; }
+  bool hasCollidedAbove() const { return collided_above_; }
+  bool hasCollidedLeft() const { return collided_left_; }
+  bool hasCollidedRight() const { return collided_right_; }
 
 private:
   void init() override;

@@ -44,6 +44,8 @@ private:
    */
   void createEffect(const glm::vec2 &center_pos, const std::string &tag);
 
+  void handleTileTriggers();
+
   void testHealth();
 };
 

@@ -6,6 +6,7 @@
 #include "../object/game_object.h"
 #include "collision.h"
 #include <glm/common.hpp>
+#include <set>
 #include <spdlog/spdlog.h>
 
 namespace engine::physics {
@@ -39,6 +40,7 @@ void PhysicsEngine::unregisterCollisionLayer(
 
 void PhysicsEngine::update(float delta_time) {
   collision_pairs_.clear();
+  tile_trigger_events_.clear();
 
   for (auto *pc : components_) {
     if (!pc || !pc->isEnabled()) {
@@ -48,7 +50,7 @@ void PhysicsEngine::update(float delta_time) {
     pc->resetCollisionFlags();
 
     // F = g * m
-    if (pc->isUserGravity()) {
+    if (pc->isUseGravity()) {
       pc->addForce(gravity_ * pc->getMass());
     }
 
@@ -65,6 +67,7 @@ void PhysicsEngine::update(float delta_time) {
   }
 
   checkObjectCollisions();
+  checkTileTriggers();
 }
 
 void PhysicsEngine::checkObjectCollisions() {
@@ -106,6 +109,53 @@ void PhysicsEngine::checkObjectCollisions() {
           collision_pairs_.emplace_back(obj_a, obj_b);
         }
       }
+    }
+  }
+}
+void PhysicsEngine::checkTileTriggers() {
+  for (auto *pc : components_) {
+    if (!pc || !pc->isEnabled() || !pc->getOwner()) {
+      continue;
+    }
+    auto *cc =
+        pc->getOwner()->getComponent<engine::component::ColliderComponent>();
+    if (!cc || !cc->isActive() || cc->isTrigger())
+      continue;
+
+    auto world_aabb = cc->getWorldAABB();
+
+    // 使用 set 防止同一帧因接触多个同类瓦片而重复触发
+    std::set<engine::component::TileType> triggers_set;
+    for (auto *layer : collision_tile_layers_) {
+      if (!layer) {
+        continue;
+      }
+
+      auto tile_size = layer->getTileSize();
+      constexpr float tolerance = 1.0f;
+      int start_x =
+          static_cast<int>(floor(world_aabb.position.x / tile_size.x));
+      int end_x = static_cast<int>(
+          ceil((world_aabb.position.x + world_aabb.size.x - tolerance) /
+               tile_size.x));
+      int start_y =
+          static_cast<int>(floor(world_aabb.position.y / tile_size.y));
+      int end_y = static_cast<int>(
+          ceil((world_aabb.position.y + world_aabb.size.y - tolerance) /
+               tile_size.y));
+
+      for (int x = start_x; x < end_x; x++) {
+        for (int y = start_y; y < end_y; y++) {
+          auto tile_type = layer->getTileTypeAt({x, y});
+          if (tile_type == engine::component::TileType::HAZARD) {
+            spdlog::debug("Find Hazard Tile");
+            triggers_set.insert(tile_type);
+          }
+        }
+      }
+    }
+    for (const auto &type : triggers_set) {
+      tile_trigger_events_.emplace_back(pc->getOwner(), type);
     }
   }
 }

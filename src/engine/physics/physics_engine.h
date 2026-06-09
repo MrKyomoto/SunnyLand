@@ -17,7 +17,7 @@ class GameObject;
 }
 
 namespace engine::physics {
-class PhysicsEngine {
+class PhysicsEngine final {
 private:
   std::vector<engine::component::PhysicsComponent *> components_;
   std::vector<engine::component::TileLayerComponent *> collision_tile_layers_;
@@ -27,10 +27,15 @@ private:
 
   std::optional<engine::utils::Rect> world_bounds_;
 
-  // @brief 储存本帧发声的 GameObject 碰撞对 (每次 update 开始时清空)
+  // @brief 储存本帧发生的 GameObject 碰撞对 (每次 update 开始时清空)
   std::vector<
       std::pair<engine::object::GameObject *, engine::object::GameObject *>>
       collision_pairs_;
+
+  // @brief 储存本帧发生的 瓦片触发事件 (GameObject*, 触发的瓦片类型)
+  std::vector<
+      std::pair<engine::object::GameObject *, engine::component::TileType>>
+      tile_trigger_events_;
 
 public:
   PhysicsEngine() = default;
@@ -66,8 +71,15 @@ public:
     return collision_pairs_;
   }
 
+  const std::vector<
+      std::pair<engine::object::GameObject *, engine::component::TileType>> &
+  getTileTriggerEvents() const {
+    return tile_trigger_events_;
+  }
 private:
   void checkObjectCollisions();
+  void checkTileTriggers();
+
   void resolveTileCollisions(engine::component::PhysicsComponent *pc,
                              float delta_time);
 

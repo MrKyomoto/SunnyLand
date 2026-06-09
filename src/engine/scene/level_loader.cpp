@@ -20,7 +20,6 @@
 #include <nlohmann/json.hpp>
 #include <spdlog/spdlog.h>
 
-
 namespace engine::scene {
 
 bool LevelLoader::loadLevel(const string &map, Scene &scene) {
@@ -239,7 +238,10 @@ void LevelLoader::loadObjectLayer(const nlohmann::json &object_json,
       auto tag = getTileProperty<std::string>(tile_json.value(), "tag");
       if (tag) {
         game_object->setTag(tag.value());
+      } else if (tile_info.type == engine::component::TileType::HAZARD) {
+        game_object->setTag("hazard");
       }
+
       auto gravity = getTileProperty<bool>(tile_json.value(), "gravity");
       if (gravity) {
         auto pc =
@@ -441,6 +443,10 @@ LevelLoader::getTileType(const nlohmann::json &tile_json) {
         auto is_unisolid = property.value("value", false);
         return is_unisolid ? engine::component::TileType::UNISOLID
                            : engine::component::TileType::NORMAL;
+      } else if (property.contains("name") && property["name"] == "hazard") {
+        auto is_hazard = property.value("value", false);
+        return is_hazard ? engine::component::TileType::HAZARD
+                         : engine::component::TileType::NORMAL;
       }
     }
   }
