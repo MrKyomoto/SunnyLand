@@ -77,6 +77,8 @@ add_executable(${TARGET}
                     src/game/component/ai/ai_behavior.h
                     src/game/component/ai_component.cpp
                     src/game/component/ai/patrol_behavior.cpp
+                    src/game/component/ai/updown_behavior.cpp
+                    src/game/component/ai/jump_behavior.cpp
                                 )
 
 # 链接库

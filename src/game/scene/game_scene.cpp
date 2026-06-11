@@ -13,6 +13,10 @@
 #include "../../engine/render/animation.h"
 #include "../../engine/render/camera.h"
 #include "../../engine/scene/level_loader.h"
+#include "../component/ai/jump_behavior.h"
+#include "../component/ai/patrol_behavior.h"
+#include "../component/ai/updown_behavior.h"
+#include "../component/ai_component.h"
 #include "../component/player_component.h"
 #include <SDL3/SDL_rect.h>
 #include <glm/ext/vector_float2.hpp>
@@ -127,6 +131,18 @@ bool GameScene::initEnemyAndItem() {
         spdlog::error("Eagle 对象缺少 AnimationComponent,无法播放动画");
         success = false;
       }
+      if (auto *ai_component =
+              game_object->addComponent<game::component::AIComponent>();
+          ai_component) {
+        auto y_max =
+            game_object->getComponent<engine::component::TransformComponent>()
+                ->getPosition()
+                .y;
+        auto y_min = y_max - 80.0f;
+        ai_component->setBehavior(
+            std::make_unique<game::component::ai::UpDownBehavior>(y_min,
+                                                                  y_max));
+      }
       continue;
     }
 
@@ -140,6 +156,18 @@ bool GameScene::initEnemyAndItem() {
         spdlog::error("Frog 对象缺少 AnimationComponent,无法播放动画");
         success = false;
       }
+
+      if (auto *ai_component =
+              game_object->addComponent<game::component::AIComponent>();
+          ai_component) {
+        auto x_max =
+            game_object->getComponent<engine::component::TransformComponent>()
+                ->getPosition()
+                .x;
+        auto x_min = x_max - 90.0f;
+        ai_component->setBehavior(
+            std::make_unique<game::component::ai::JumpBehavior>(x_min, x_max));
+      }
       continue;
     }
     if (game_object->getName() == "opossum") {
@@ -151,6 +179,18 @@ bool GameScene::initEnemyAndItem() {
       } else {
         spdlog::error("Opossum 对象缺少 AnimationComponent,无法播放动画");
         success = false;
+      }
+      if (auto *ai_component =
+              game_object->addComponent<game::component::AIComponent>();
+          ai_component) {
+        auto x_max =
+            game_object->getComponent<engine::component::TransformComponent>()
+                ->getPosition()
+                .x;
+        auto x_min = x_max - 200.0f;
+        ai_component->setBehavior(
+            std::make_unique<game::component::ai::PatrolBehavior>(x_min,
+                                                                  x_max));
       }
       continue;
     }
