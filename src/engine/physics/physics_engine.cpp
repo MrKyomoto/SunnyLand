@@ -21,6 +21,10 @@ void PhysicsEngine::unregisterComponent(
     engine::component::PhysicsComponent *component) {
   auto it = std::remove(components_.begin(), components_.end(), component);
   components_.erase(it);
+  if (it != components_.end())
+  {
+      components_.erase(it);
+  }
 
   spdlog::trace("PhysicsComponent 注销完成");
 }
@@ -36,7 +40,10 @@ void PhysicsEngine::unregisterCollisionLayer(
     engine::component::TileLayerComponent *layer) {
   auto it = std::remove(collision_tile_layers_.begin(),
                         collision_tile_layers_.end(), layer);
-  collision_tile_layers_.erase(it);
+  if (it != collision_tile_layers_.end())
+  {
+      collision_tile_layers_.erase(it);
+  }
   spdlog::trace("TileLayerComponent 注销完成");
 }
 
