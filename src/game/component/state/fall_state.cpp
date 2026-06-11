@@ -5,8 +5,10 @@
 #include "../../../engine/input/input_manager.h"
 #include "../player_component.h"
 #include "idle_state.h"
+#include "dual_jump_state.h"
 #include "walk_state.h"
 #include <glm/common.hpp>
+#include <memory>
 #include <spdlog/spdlog.h>
 
 namespace game::component::state {
@@ -18,6 +20,10 @@ FallState::handleInput(engine::core::Context &context) {
   auto input_manager = context.getInputManager();
   auto sprite_component = player_component_->getSpriteComponent();
   auto physics_component = player_component_->getPhysicsComponent();
+  if(player_component_->isCanDualJump() && input_manager.isActionDown("jump")){
+    player_component_->setCanDualJump(false);
+    return std::make_unique<DualJumpState>(player_component_);
+  }
 
   if (input_manager.isActionDown("move_left")) {
     if (physics_component->velocity_.x > 0.0f) {

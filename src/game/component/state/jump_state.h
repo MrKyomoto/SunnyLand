@@ -6,6 +6,9 @@ namespace game::component::state {
 class JumpState final : public PlayerState {
   friend class game::component::PlayerComponent;
 
+private:
+  float dual_jump_timer_ = 0.0f;
+
 public:
   JumpState(PlayerComponent *player_component)
       : PlayerState(player_component) {}

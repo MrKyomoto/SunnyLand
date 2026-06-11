@@ -40,6 +40,8 @@ private:
   float jump_force_ = 350.0f;
 
   float stunned_duration_ = 0.4f; // (s)
+  float dual_jump_cd_ = 0.2f;     // (s)
+  bool can_dual_jump_ = false;
 
 public:
   PlayerComponent() = default;
@@ -93,10 +95,13 @@ public:
   void setStunnedDuration(float stunned_duration) {
     stunned_duration_ = stunned_duration;
   }
+  float getDualJumpCD() const { return dual_jump_cd_; }
+  void setDualJumpCD(float dual_jump_cd) { dual_jump_cd_ = dual_jump_cd; }
+  void setCanDualJump(bool can_dual_jump) { can_dual_jump_ = can_dual_jump; }
+  bool isCanDualJump() const { return can_dual_jump_; }
 
   void setState(
       std::unique_ptr<state::PlayerState> new_state); ///< @brief 切换玩家状态
-
 
   bool takeDamage(int damage);
 
