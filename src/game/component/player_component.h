@@ -38,6 +38,7 @@ private:
   float max_speed_ = 120.0f;
   float friction_factor_ = 0.85f;
   float jump_force_ = 350.0f;
+  float dual_jump_force_ = 280.0f;
 
   float stunned_duration_ = 0.4f; // (s)
   float dual_jump_cd_ = 0.2f;     // (s)
@@ -91,6 +92,10 @@ public:
     jump_force_ = jump_force;
   } ///< @brief 设置跳跃力
   float getJumpForce() const { return jump_force_; }
+  void setDualJumpForce(float dual_jump_force) {
+    dual_jump_force_ = dual_jump_force;
+  } ///< @brief 设置跳跃力
+  float getDualJumpForce() const { return dual_jump_force_; }
   float getStunnedDuration() const { return stunned_duration_; }
   void setStunnedDuration(float stunned_duration) {
     stunned_duration_ = stunned_duration;

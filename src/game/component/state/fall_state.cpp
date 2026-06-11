@@ -49,6 +49,7 @@ std::unique_ptr<PlayerState> FallState::update(float, engine::core::Context &) {
       glm::clamp(physics_component->velocity_.x, -max_speed, max_speed);
 
   if (physics_component->hasCollidedBelow()) {
+    player_component_->setCanDualJump(false);
     if (glm::abs(physics_component->velocity_.x) < 1.0f) {
       return std::make_unique<IdleState>(player_component_);
     } else {

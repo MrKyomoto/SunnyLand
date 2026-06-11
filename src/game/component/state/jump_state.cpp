@@ -18,8 +18,10 @@ void JumpState::enter() {
   playAnimation("jump");
   auto physics_component = player_component_->getPhysicsComponent();
   physics_component->velocity_.y = -player_component_->getJumpForce();
+  dual_jump_timer_ = 0.0f;
+  player_component_->setCanDualJump(false);
 }
-void JumpState::exit() {}
+void JumpState::exit() { dual_jump_timer_ = 0.0f; }
 
 std::unique_ptr<PlayerState>
 JumpState::handleInput(engine::core::Context &context) {
@@ -27,7 +29,8 @@ JumpState::handleInput(engine::core::Context &context) {
   auto sprite_component = player_component_->getSpriteComponent();
   auto physics_component = player_component_->getPhysicsComponent();
 
-  if (player_component_->isCanDualJump() && input_manager.isActionDown("jump")) {
+  if (player_component_->isCanDualJump() &&
+      input_manager.isActionDown("jump")) {
     player_component_->setCanDualJump(false);
     return std::make_unique<DualJumpState>(player_component_);
   }
@@ -56,10 +59,12 @@ std::unique_ptr<PlayerState> JumpState::update(float delta_time,
   physics_component->velocity_.x =
       glm::clamp(physics_component->velocity_.x, -max_speed, max_speed);
 
-  dual_jump_timer_ += delta_time;
-  if (dual_jump_timer_ >= player_component_->getDualJumpCD()) {
-    dual_jump_timer_ = 0.0;
-    player_component_->setCanDualJump(true);
+  if (!player_component_->isCanDualJump()) {
+    dual_jump_timer_ += delta_time;
+    if (dual_jump_timer_ >= player_component_->getDualJumpCD()) {
+      dual_jump_timer_ = 0.0;
+      player_component_->setCanDualJump(true);
+    }
   }
 
   if (physics_component->getVelocity().y > 0.0f) {
