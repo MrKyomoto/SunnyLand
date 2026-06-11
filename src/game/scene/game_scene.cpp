@@ -329,7 +329,10 @@ void GameScene::handleTileTriggers() {
     auto tile_type = event.second;
     if (tile_type == engine::component::TileType::HAZARD) {
       if (obj->getName() == "player") {
-        obj->getComponent<game::component::PlayerComponent>()->takeDamage(1);
+        if (obj->getComponent<game::component::PlayerComponent>()->takeDamage(
+                1)) {
+          spdlog::debug("Player {} 踩危险瓷砖受到伤害", obj->getName());
+        }
       }
     }
   }
