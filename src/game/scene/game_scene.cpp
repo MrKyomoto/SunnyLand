@@ -268,11 +268,19 @@ void GameScene::PlayerVSItem(engine::object::GameObject *player,
   } else if (item->getName() == "gem") {
     // TODO: score++
   }
+  auto item_health = item->getComponent<engine::component::HealthComponent>();
+  if (!item_health) {
+    spdlog::error("Item {} 缺少 HealthComponent 组件", item->getName());
+    return;
+  }
 
-  item->setNeedRemove(true);
-  auto item_aabb = item->getComponent<engine::component::ColliderComponent>()
-                       ->getWorldAABB();
-  createEffect(item_aabb.position + item_aabb.size / 2.0f, item->getTag());
+  item_health->takeDamage(1);
+  if (!item_health->isAlive()) {
+    item->setNeedRemove(true);
+    auto item_aabb = item->getComponent<engine::component::ColliderComponent>()
+                         ->getWorldAABB();
+    createEffect(item_aabb.position + item_aabb.size / 2.0f, item->getTag());
+  }
 }
 
 void GameScene::createEffect(const glm::vec2 &center_pos,

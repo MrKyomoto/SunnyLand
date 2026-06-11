@@ -9,7 +9,7 @@
  "name":"actor",
  "spacing":0,
  "tilecount":6,
- "tiledversion":"1.11.2",
+ "tiledversion":"1.12.1",
  "tileheight":41,
  "tiles":[
         {
@@ -27,6 +27,7 @@
                      "height":24.6363636363636,
                      "id":1,
                      "name":"",
+                     "opacity":1,
                      "rotation":0,
                      "type":"",
                      "visible":true,
@@ -75,6 +76,7 @@
                      "height":19,
                      "id":2,
                      "name":"",
+                     "opacity":1,
                      "rotation":0,
                      "type":"",
                      "visible":true,
@@ -133,6 +135,7 @@
                      "height":19,
                      "id":1,
                      "name":"",
+                     "opacity":1,
                      "rotation":0,
                      "type":"",
                      "visible":true,
@@ -191,6 +194,7 @@
                      "height":25,
                      "id":1,
                      "name":"",
+                     "opacity":1,
                      "rotation":0,
                      "type":"",
                      "visible":true,
@@ -244,6 +248,7 @@
                      "height":15,
                      "id":1,
                      "name":"",
+                     "opacity":1,
                      "rotation":0,
                      "type":"",
                      "visible":true,
@@ -262,6 +267,11 @@
                  "name":"animation",
                  "type":"string",
                  "value":"{\n  \"idle\": {\"duration\": 200, \"frames\":[0,1,2,3,4,3,2,1]}\n}"
+                }, 
+                {
+                 "name":"health",
+                 "type":"int",
+                 "value":1
                 }, 
                 {
                  "name":"tag",
@@ -287,6 +297,7 @@
                      "height":11,
                      "id":1,
                      "name":"",
+                     "opacity":1,
                      "rotation":0,
                      "type":"",
                      "visible":true,
@@ -305,6 +316,11 @@
                  "name":"animation",
                  "type":"string",
                  "value":"{\n  \"idle\": {\"duration\": 200, \"frames\":[0,1,2,3,4]}\n}"
+                }, 
+                {
+                 "name":"health",
+                 "type":"int",
+                 "value":1
                 }, 
                 {
                  "name":"tag",
