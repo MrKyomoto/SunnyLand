@@ -22,7 +22,7 @@ FallState::handleInput(engine::core::Context &context) {
   auto sprite_component = player_component_->getSpriteComponent();
   auto physics_component = player_component_->getPhysicsComponent();
   if (player_component_->isCanDualJump() &&
-      input_manager.isActionDown("jump")) {
+      input_manager.isActionPressed("jump")) {
     player_component_->setCanDualJump(false);
     return std::make_unique<DualJumpState>(player_component_);
   }

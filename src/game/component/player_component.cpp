@@ -81,6 +81,10 @@ void PlayerComponent::setState(std::unique_ptr<state::PlayerState> new_state) {
   current_state_->enter();
 }
 
+bool PlayerComponent::is_on_ground() const {
+  return coyote_timer_ <= coyote_time_ || physics_component_->hasCollidedBelow();
+}
+
 void PlayerComponent::handleInput(engine::core::Context &context) {
   if (!current_state_)
     return;
@@ -95,6 +99,12 @@ void PlayerComponent::update(float delta_time, engine::core::Context &context) {
 
   if (!current_state_)
     return;
+
+  if (!physics_component_->hasCollidedBelow()) {
+    coyote_timer_ += delta_time;
+  } else {
+    coyote_timer_ = 0.0f;
+  }
 
   auto next_state = current_state_->update(delta_time, context);
   if (next_state) {

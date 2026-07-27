@@ -46,6 +46,8 @@ private:
 
   float climb_speed_ = 100.0f;
 
+  static constexpr float coyote_time_ = 0.1f;
+  float coyote_timer_ = 0.0f;
 public:
   PlayerComponent() = default;
   ~PlayerComponent() override = default;
@@ -115,6 +117,7 @@ public:
 
   bool takeDamage(int damage);
 
+  bool is_on_ground() const; // 考虑了土狼时间的虚假的是否在地面上的判断
 private:
   void init() override;
   void handleInput(engine::core::Context &context) override;
