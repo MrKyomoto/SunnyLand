@@ -44,6 +44,8 @@ private:
   float dual_jump_cd_ = 0.2f;     // (s)
   bool can_dual_jump_ = false;
 
+  float climb_speed_ = 100.0f;
+
 public:
   PlayerComponent() = default;
   ~PlayerComponent() override = default;
@@ -104,6 +106,9 @@ public:
   void setDualJumpCD(float dual_jump_cd) { dual_jump_cd_ = dual_jump_cd; }
   void setCanDualJump(bool can_dual_jump) { can_dual_jump_ = can_dual_jump; }
   bool isCanDualJump() const { return can_dual_jump_; }
+
+  void setClimbSpeed(float climb_speed) { climb_speed_ = climb_speed; }
+  float getClimbSpeed() const { return climb_speed_; }
 
   void setState(
       std::unique_ptr<state::PlayerState> new_state); ///< @brief 切换玩家状态

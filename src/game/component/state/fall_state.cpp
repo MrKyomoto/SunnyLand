@@ -4,8 +4,9 @@
 #include "../../../engine/core/context.h"
 #include "../../../engine/input/input_manager.h"
 #include "../player_component.h"
-#include "idle_state.h"
+#include "climb_state.h"
 #include "dual_jump_state.h"
+#include "idle_state.h"
 #include "walk_state.h"
 #include <glm/common.hpp>
 #include <memory>
@@ -20,9 +21,20 @@ FallState::handleInput(engine::core::Context &context) {
   auto input_manager = context.getInputManager();
   auto sprite_component = player_component_->getSpriteComponent();
   auto physics_component = player_component_->getPhysicsComponent();
-  if(player_component_->isCanDualJump() && input_manager.isActionDown("jump")){
+  if (player_component_->isCanDualJump() &&
+      input_manager.isActionDown("jump")) {
     player_component_->setCanDualJump(false);
     return std::make_unique<DualJumpState>(player_component_);
+  }
+
+  if (physics_component->hasCollidedLadder() &&
+      input_manager.isActionDown("move_up")) {
+    return std::make_unique<ClimbState>(player_component_);
+  }
+
+  if (physics_component->isOnTopLadder() &&
+      input_manager.isActionDown("move_down")) {
+    return std::make_unique<ClimbState>(player_component_);
   }
 
   if (input_manager.isActionDown("move_left")) {

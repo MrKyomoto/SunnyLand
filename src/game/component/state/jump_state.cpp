@@ -5,6 +5,7 @@
 #include "../../../engine/core/context.h"
 #include "../../../engine/input/input_manager.h"
 #include "../player_component.h"
+#include "climb_state.h"
 #include "dual_jump_state.h"
 #include "fall_state.h"
 #include "idle_state.h"
@@ -12,6 +13,7 @@
 #include <glm/common.hpp>
 #include <memory>
 #include <spdlog/spdlog.h>
+
 
 namespace game::component::state {
 void JumpState::enter() {
@@ -33,6 +35,11 @@ JumpState::handleInput(engine::core::Context &context) {
       input_manager.isActionDown("jump")) {
     player_component_->setCanDualJump(false);
     return std::make_unique<DualJumpState>(player_component_);
+  }
+
+  if (physics_component->hasCollidedLadder() &&
+      input_manager.isActionDown("move_up")) {
+    return std::make_unique<ClimbState>(player_component_);
   }
 
   else if (input_manager.isActionDown("move_left")) {
@@ -64,6 +71,15 @@ std::unique_ptr<PlayerState> JumpState::update(float delta_time,
     if (dual_jump_timer_ >= player_component_->getDualJumpCD()) {
       dual_jump_timer_ = 0.0;
       player_component_->setCanDualJump(true);
+    }
+  }
+
+  if (physics_component->hasCollidedBelow()) {
+    player_component_->setCanDualJump(false);
+    if (glm::abs(physics_component->velocity_.x) < 1.0f) {
+      return std::make_unique<IdleState>(player_component_);
+    } else {
+      return std::make_unique<WalkState>(player_component_);
     }
   }
 

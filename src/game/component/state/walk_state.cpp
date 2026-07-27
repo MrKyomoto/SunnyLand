@@ -1,9 +1,11 @@
 #include "walk_state.h"
 #include "../../../engine/component/physics_component.h"
 #include "../../../engine/component/sprite_component.h"
+#include "../../../engine/component/transform_component.h"
 #include "../../../engine/core/context.h"
 #include "../../../engine/input/input_manager.h"
 #include "../player_component.h"
+#include "climb_state.h"
 #include "fall_state.h"
 #include "idle_state.h"
 #include "jump_state.h"
@@ -20,6 +22,18 @@ WalkState::handleInput(engine::core::Context &context) {
   auto physics_component = player_component_->getPhysicsComponent();
   auto sprite_component = player_component_->getSpriteComponent();
 
+  if (physics_component->hasCollidedLadder() &&
+      input_manager.isActionDown("move_up")) {
+    return std::make_unique<ClimbState>(player_component_);
+  }
+
+  if (physics_component->isOnTopLadder() &&
+      input_manager.isActionDown("move_down")) {
+    // NOTE: 需要向下移动一点，确保下一帧能与梯子碰撞（否则会切换回FallState）
+    auto tranform_component = player_component_->getTransformComponent();
+    tranform_component->translate(glm::vec2(0,2.0f));
+    return std::make_unique<ClimbState>(player_component_);
+  }
   if (input_manager.isActionDown("jump")) {
     return std::make_unique<JumpState>(player_component_);
   }

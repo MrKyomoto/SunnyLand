@@ -20,9 +20,8 @@ void PhysicsEngine::registerComponent(
 void PhysicsEngine::unregisterComponent(
     engine::component::PhysicsComponent *component) {
   auto it = std::remove(components_.begin(), components_.end(), component);
-  if (it != components_.end())
-  {
-      components_.erase(it);
+  if (it != components_.end()) {
+    components_.erase(it);
   }
 
   spdlog::trace("PhysicsComponent 注销完成");
@@ -39,9 +38,8 @@ void PhysicsEngine::unregisterCollisionLayer(
     engine::component::TileLayerComponent *layer) {
   auto it = std::remove(collision_tile_layers_.begin(),
                         collision_tile_layers_.end(), layer);
-  if (it != collision_tile_layers_.end())
-  {
-      collision_tile_layers_.erase(it);
+  if (it != collision_tile_layers_.end()) {
+    collision_tile_layers_.erase(it);
   }
   spdlog::trace("TileLayerComponent 注销完成");
 }
@@ -157,6 +155,9 @@ void PhysicsEngine::checkTileTriggers() {
           auto tile_type = layer->getTileTypeAt({x, y});
           if (tile_type == engine::component::TileType::HAZARD) {
             triggers_set.insert(tile_type);
+          } else if (tile_type == engine::component::TileType::LADDER) {
+            // 梯子类型不必记录到事件容器，物理引擎直接设置碰撞标志
+            pc->setCollidedLadder(true);
           }
         }
       }
@@ -279,7 +280,25 @@ void PhysicsEngine::resolveTileCollisions(
         new_obj_pos.y = tile_y * layer->getTileSize().y - obj_size.y;
         pc->setVelocity({pc->getVelocity().x, 0.0f});
         pc->setCollidedBelow(true);
-      } else {
+      } else if (tile_type_left == component::TileType::LADDER &&
+                 tile_type_right == component::TileType::LADDER) {
+        auto tile_type_up_l = layer->getTileTypeAt({tile_x, tile_y - 1});
+        auto tile_type_up_r = layer->getTileTypeAt({tile_x_right, tile_y - 1});
+        if (tile_type_up_l != component::TileType::LADDER &&
+            tile_type_up_r != component::TileType::LADDER) {
+          // 如果脚下是梯子但是头上不是梯子说明在梯子顶部
+          if (pc->isUseGravity()) {
+            // 如果当前启用了物理说明是非攀爬状态
+            pc->setOnTopLadder(true);
+            // 构造伪碰撞让玩家站在梯子顶部
+            pc->setCollidedBelow(true);
+            // 将玩家对齐到梯子顶部
+            new_obj_pos.y = tile_y * layer->getTileSize().y - obj_size.y;
+            pc->velocity_.y = 0.0f;
+          }
+        }
+      }
+      else {
         // 下方两个角点都要检测
         auto width_left = obj_pos.x - tile_x * tile_size.x;
         auto width_right = obj_pos.x + obj_size.x - tile_x_right * tile_size.x;

@@ -79,6 +79,7 @@ add_executable(${TARGET}
                     src/game/component/ai/patrol_behavior.cpp
                     src/game/component/ai/updown_behavior.cpp
                     src/game/component/ai/jump_behavior.cpp
+                    src/game/component/state/climb_state.cpp
                                 )
 
 # 链接库

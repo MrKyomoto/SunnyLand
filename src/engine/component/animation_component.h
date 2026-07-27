@@ -40,6 +40,7 @@ public:
   void addAnimation(std::unique_ptr<engine::render::Animation> animation);
   void playAnimation(const std::string &name);
   void stopAnimation() { is_playing_ = false; }
+  void resumeAnimation() { is_playing_ = true; }
 
   string getCurrentAnimationName() const;
   bool isPlaying() const { return is_playing_; }
