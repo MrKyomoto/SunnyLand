@@ -7,6 +7,7 @@
 #include "../component/sprite_component.h"
 #include "../component/tilelayer_component.h"
 #include "../component/transform_component.h"
+#include "../component/audio_component.h"
 #include "../core/context.h"
 #include "../object/game_object.h"
 #include "../physics/collider.h"
@@ -233,6 +234,24 @@ void LevelLoader::loadObjectLayer(const nlohmann::json &object_json,
         cc->setOffset(rect->position);
         game_object->addComponent<engine::component::PhysicsComponent>(
             &scene.getContext().getPhysicsEngine(), false);
+      }
+
+      auto sound_string = getTileProperty<std::string>(tile_json.value(), "sound");
+      if (sound_string) {
+        nlohmann::json sound_json;
+        try {
+          sound_json = nlohmann::json::parse(sound_string.value());
+        } catch (const nlohmann::json::parse_error& e) {
+          spdlog::error("解析音效 JSON 字符串失败: {}", e.what());
+          continue;
+        }
+        // 添加AudioComponent
+        auto* audio_component = game_object->addComponent<engine::component::AudioComponent>(
+            &scene.getContext().getAudioPlayer(),
+            &scene.getContext().getCamera()
+        );
+        // 添加音效到 AudioComponent
+        addSound(sound_json, audio_component);
       }
 
       auto tag = getTileProperty<std::string>(tile_json.value(), "tag");
@@ -512,6 +531,15 @@ std::optional<nlohmann::json> LevelLoader::getTileJsonByGid(int gid) const {
     }
   }
   return std::nullopt;
+}
+void LevelLoader::addSound(const nlohmann::json &sound_json,
+                           engine::component::AudioComponent *audio_component) {
+  for (const auto& sound : sound_json.items()) {
+        const std::string& sound_id = sound.key();
+        const std::string& sound_path = sound.value();
+        // 添加音效到 AudioComponent
+        audio_component->addSound(sound_id, sound_path);
+  }
 }
 
 string LevelLoader::resolvePath(const string &relative_path,

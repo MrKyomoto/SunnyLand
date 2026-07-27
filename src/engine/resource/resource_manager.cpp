@@ -70,6 +70,9 @@ void ResourceManager::unloadShortAudio(const string &file_path) {
 void ResourceManager::clearLongAudios() { audio_manager_->clearLongAudios(); }
 void ResourceManager::clearShortAudios() { audio_manager_->clearShortAudios(); }
 void ResourceManager::clearAudios() { audio_manager_->clearAudios(); }
+MIX_Mixer *ResourceManager::getMixer() const {
+  return audio_manager_->getMixer();
+}
 TTF_Font *ResourceManager::loadFont(const string &file_path, int point_size) {
   return font_manager_->loadFont(file_path, point_size);
 }

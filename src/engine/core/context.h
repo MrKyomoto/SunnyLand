@@ -13,6 +13,10 @@ namespace engine::physics {
 class PhysicsEngine;
 }
 
+namespace engine::audio {
+class AudioPlayer;
+}
+
 namespace engine::core {
 /**
  * @brief 持有对核心引擎模块引用的上下文对象
@@ -27,12 +31,14 @@ private:
   engine::render::Camera &camera_;
   engine::resource::ResourceManager &resource_manager_;
   engine::physics::PhysicsEngine &physics_engine_;
+  engine::audio::AudioPlayer &audio_player_;
 
 public:
   Context(engine::input::InputManager &input_manager,
           engine::render::Renderer &renderer, engine::render::Camera &camera,
           engine::resource::ResourceManager &resource_manager,
-          engine::physics::PhysicsEngine &physics_engine);
+          engine::physics::PhysicsEngine &physics_engine,
+          engine::audio::AudioPlayer &audio_player);
 
   Context(const Context &) = delete;
   Context &operator=(const Context &) = delete;
@@ -49,6 +55,7 @@ public:
     return resource_manager_;
   }
   engine::physics::PhysicsEngine &getPhysicsEngine() const { return physics_engine_; };
+  engine::audio::AudioPlayer &getAudioPlayer() const { return audio_player_; };
 };
 
 } // namespace engine::core

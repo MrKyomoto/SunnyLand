@@ -9,6 +9,7 @@ namespace engine::component {
 struct TileInfo;
 enum class TileType;
 class AnimationComponent;
+class AudioComponent;
 }
 namespace engine::render {
 class Animation;
@@ -80,6 +81,8 @@ private:
   /// 2. 相对路径： "../textures/Layers/back.png"
   /// 3. 最终路径： "assets/textures/Layers/back.png"
   string resolvePath(const string& relative_path, const string& file_path);
+
+  void addSound(const nlohmann::json &sound_json, engine::component::AudioComponent *audio_component);
 };
 
 } // namespace engine::scene

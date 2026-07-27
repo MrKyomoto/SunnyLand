@@ -2,6 +2,7 @@
 #include "jump_state.h"
 #include "../../../engine/component/physics_component.h"
 #include "../../../engine/component/sprite_component.h"
+#include "../../../engine/component/audio_component.h"
 #include "../../../engine/core/context.h"
 #include "../../../engine/input/input_manager.h"
 #include "../player_component.h"
@@ -22,6 +23,10 @@ void JumpState::enter() {
   physics_component->velocity_.y = -player_component_->getJumpForce();
   dual_jump_timer_ = 0.0f;
   player_component_->setCanDualJump(false);
+
+  if (auto *audio = player_component_->getAudioComponent(); audio) {
+    audio->playSound("jump");
+  }
 }
 void JumpState::exit() { dual_jump_timer_ = 0.0f; }
 

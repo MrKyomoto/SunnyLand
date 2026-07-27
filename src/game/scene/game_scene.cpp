@@ -1,5 +1,7 @@
 #include "game_scene.h"
+#include "../../engine/audio/audio_player.h"
 #include "../../engine/component/animation_component.h"
+#include "../../engine/component/audio_component.h"
 #include "../../engine/component/collider_component.h"
 #include "../../engine/component/health_component.h"
 #include "../../engine/component/physics_component.h"
@@ -55,6 +57,12 @@ void GameScene::init() {
     return;
   }
   Scene::init();
+
+  // 音频设置
+  context_.getAudioPlayer().setMusicVolume(0.2f);
+  context_.getAudioPlayer().setSoundVolume(0.5f);
+  context_.getAudioPlayer().playMusic("assets/audio/hurry_up_and_run.ogg", -1, 1000);
+
   spdlog::trace("GameScene is initialized");
 }
 
@@ -155,6 +163,13 @@ bool GameScene::initEnemyAndItem() {
       } else {
         spdlog::error("Frog 对象缺少 AnimationComponent,无法播放动画");
         success = false;
+      }
+
+      // Frog 有跳跃行为，配上叫声
+      if (!game_object->getComponent<engine::component::AudioComponent>()) {
+        auto *audio = game_object->addComponent<engine::component::AudioComponent>(
+            &context_.getAudioPlayer(), &context_.getCamera());
+        audio->addSound("cry", "assets/audio/frog_quak-81741.mp3");
       }
 
       if (auto *ai_component =
@@ -295,6 +310,8 @@ void GameScene::PlayerVSEnemyCollision(engine::object::GameObject *player,
     // 反弹跳跃效果
     player->getComponent<engine::component::PhysicsComponent>()->velocity_.y =
         -300.0f;
+
+    context_.getAudioPlayer().playSound("assets/audio/punch2a.mp3");
   } else {
     // NOTE: 踩踏判断失败,玩家受伤
     player->getComponent<game::component::PlayerComponent>()->takeDamage(1);
@@ -320,6 +337,7 @@ void GameScene::PlayerVSItem(engine::object::GameObject *player,
     auto item_aabb = item->getComponent<engine::component::ColliderComponent>()
                          ->getWorldAABB();
     createEffect(item_aabb.position + item_aabb.size / 2.0f, item->getTag());
+    context_.getAudioPlayer().playSound("assets/audio/poka01.mp3");
   }
 }
 

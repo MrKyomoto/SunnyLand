@@ -1,4 +1,5 @@
 #include "hurt_state.h"
+#include "../../../engine/component/audio_component.h"
 #include "../../../engine/component/physics_component.h"
 #include "../../../engine/component/sprite_component.h"
 #include "../player_component.h"
@@ -17,6 +18,10 @@ void HurtState::enter() {
   }
 
   physics_component->velocity_ = knockback_velocity;
+
+  if (auto *audio = player_component_->getAudioComponent(); audio) {
+    audio->playSound("hurt");
+  }
 }
 void HurtState::exit(){}
 

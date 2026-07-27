@@ -1,5 +1,6 @@
 #include "game_app.h"
 #include "../../game/scene/game_scene.h"
+#include "../audio/audio_player.h"
 #include "../component/sprite_component.h"
 #include "../component/transform_component.h"
 #include "../core/config.h"
@@ -67,6 +68,8 @@ bool GameApp::init() {
   if (!initInputManager())
     return false;
   if (!initPhysicsEngine())
+    return false;
+  if (!initAudioPlayer())
     return false;
   if (!initContext())
     return false;
@@ -241,11 +244,23 @@ bool GameApp::initPhysicsEngine() {
   return true;
 }
 
+bool GameApp::initAudioPlayer() {
+  try {
+    audio_player_ = std::make_unique<engine::audio::AudioPlayer>(
+        resource_manager_.get(), resource_manager_->getMixer());
+  } catch (const std::exception &e) {
+    spdlog::error("初始化AudioPlayer失败: {}", e.what());
+    return false;
+  }
+  spdlog::trace("AudioPlayer初始化成功");
+  return true;
+}
+
 bool GameApp::initContext() {
   try {
     context_ = std::make_unique<engine::core::Context>(
         *input_manager_, *renderer_, *camera_, *resource_manager_,
-        *physics_engine_);
+        *physics_engine_, *audio_player_);
   } catch (const std::exception &e) {
     spdlog::error("初始化Context失败: {}", e.what());
     return false;

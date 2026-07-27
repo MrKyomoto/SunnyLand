@@ -52,5 +52,7 @@ private:
   void clearLongAudios();
   void clearShortAudios();
   void clearAudios();
+
+  MIX_Mixer *getMixer() const { return mixer_; }
 };
 } // namespace engine::resource

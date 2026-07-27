@@ -80,6 +80,8 @@ add_executable(${TARGET}
                     src/game/component/ai/updown_behavior.cpp
                     src/game/component/ai/jump_behavior.cpp
                     src/game/component/state/climb_state.cpp
+                    src/engine/audio/audio_player.cpp
+                    src/engine/component/audio_component.cpp
                                 )
 
 # 链接库

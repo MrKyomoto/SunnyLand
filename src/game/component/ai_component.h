@@ -8,6 +8,7 @@ class TransformComponent;
 class PhysicsComponent;
 class SpriteComponent;
 class AnimationComponent;
+class AudioComponent;
 } // namespace engine::component
 
 namespace game::component {
@@ -21,6 +22,7 @@ private:
   engine::component::PhysicsComponent *physics_component_ = nullptr;
   engine::component::SpriteComponent *sprite_component_ = nullptr;
   engine::component::AnimationComponent *animation_component_ = nullptr;
+  engine::component::AudioComponent *audio_component_ = nullptr;
 
 public:
   AIComponent() = default;
@@ -46,6 +48,9 @@ public:
   }
   engine::component::AnimationComponent *getAnimationComponent() const {
     return animation_component_;
+  }
+  engine::component::AudioComponent *getAudioComponent() const {
+    return audio_component_;
   }
 
 private:

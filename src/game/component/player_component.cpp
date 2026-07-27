@@ -1,5 +1,6 @@
 #include "player_component.h"
 #include "../../engine/component/animation_component.h"
+#include "../../engine/component/audio_component.h"
 #include "../../engine/component/health_component.h"
 #include "../../engine/component/physics_component.h"
 #include "../../engine/component/sprite_component.h"
@@ -32,6 +33,8 @@ void PlayerComponent::init() {
       owner_->getComponent<engine::component::AnimationComponent>();
   health_component_ =
       owner_->getComponent<engine::component::HealthComponent>();
+  audio_component_ =
+      owner_->getComponent<engine::component::AudioComponent>();
 
   if (!transform_component_ || !physics_component_ || !sprite_component_ ||
       !animation_component_ || !health_component_) {

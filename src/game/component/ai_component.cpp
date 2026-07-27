@@ -1,5 +1,6 @@
 #include "ai_component.h"
 #include "../../engine/component/animation_component.h"
+#include "../../engine/component/audio_component.h"
 #include "../../engine/component/physics_component.h"
 #include "../../engine/component/sprite_component.h"
 #include "../../engine/component/transform_component.h"
@@ -22,6 +23,8 @@ void AIComponent::init() {
       getOwner()->getComponent<engine::component::SpriteComponent>();
   animation_component_ =
       getOwner()->getComponent<engine::component::AnimationComponent>();
+  audio_component_ =
+      getOwner()->getComponent<engine::component::AudioComponent>();
 
   if (!transform_component_ || !physics_component_ || !sprite_component_ ||
       !animation_component_) {

@@ -1,5 +1,6 @@
 #include "jump_behavior.h"
 #include "../../../engine/component/animation_component.h"
+#include "../../../engine/component/audio_component.h"
 #include "../../../engine/component/physics_component.h"
 #include "../../../engine/component/sprite_component.h"
 #include "../../../engine/component/transform_component.h"
@@ -44,6 +45,13 @@ void JumpBehavior::update(float delta_time, AIComponent &ai_component) {
 
   auto is_on_ground = pc->hasCollidedBelow();
   if (is_on_ground) {
+    // 刚刚落地时播放叫声音效
+    if (jump_timer_ == 0.0f) {
+      if (auto *audio = ai_component.getAudioComponent(); audio) {
+        audio->playSound("cry", -1, true);
+      }
+    }
+
     jump_timer_ += delta_time;
     pc->velocity_.x = 0.0f;
 

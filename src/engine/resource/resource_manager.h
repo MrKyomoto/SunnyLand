@@ -7,6 +7,7 @@ extern "C" {
 struct SDL_Renderer;
 struct SDL_Texture;
 struct MIX_Audio;
+struct MIX_Mixer;
 struct TTF_Font;
 }
 
@@ -73,6 +74,8 @@ public:
   void clearShortAudios();
   /// @brief 清空所有Audio资源
   void clearAudios();
+
+  MIX_Mixer *getMixer() const;
 
   // -- Fonts --
   TTF_Font *loadFont(const string &file_path, int point_size);
