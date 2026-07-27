@@ -100,10 +100,30 @@ void PlayerComponent::update(float delta_time, engine::core::Context &context) {
   if (!current_state_)
     return;
 
+  // 土狼时间
   if (!physics_component_->hasCollidedBelow()) {
     coyote_timer_ += delta_time;
   } else {
     coyote_timer_ = 0.0f;
+  }
+
+  // 如果处于无敌状态，则进行闪烁
+  if (health_component_->isInvincible()) {
+    flash_timer_ += delta_time;
+    // 让计时器在 [0, 2 * interval) 这个区间内循环
+    if (flash_timer_ >= 2 * flash_interval_) {
+        flash_timer_ -= 2 * flash_interval_;
+    }
+    // 区间的前半段时间隐藏，后半段时间显示
+    if (flash_timer_ < flash_interval_) {
+        sprite_component_->setHidden(true);
+    } else {
+        sprite_component_->setHidden(false);
+    }
+  }
+  else if (sprite_component_->isHidden()) {
+    // 非无敌状态时，要确保精灵总是可见的
+    sprite_component_->setHidden(false);
   }
 
   auto next_state = current_state_->update(delta_time, context);

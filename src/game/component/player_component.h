@@ -48,6 +48,9 @@ private:
 
   static constexpr float coyote_time_ = 0.1f;
   float coyote_timer_ = 0.0f;
+
+  static constexpr float flash_interval_ = 0.1f;  ///< @brief 闪烁间隔时间（单位：秒）
+  float flash_timer_ = 0.0f;                      ///< @brief 闪烁计时器
 public:
   PlayerComponent() = default;
   ~PlayerComponent() override = default;
