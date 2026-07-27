@@ -26,3 +26,19 @@
     - 如果没有gid则代表自己绘制的形状(可能是碰撞箱,触发器等,未来按需处理)
 
   - 自定义属性的获取方法: 图块集中 获取 tiles -> 获取 properties
+
+loadLevel("assets/maps/level1.tmj", scene)
+  ├── 1. 读取 .tmj JSON
+  ├── 2. 加载 tilesets 配置（瓦片集）
+  ├── 3. 按图层类型分别处理
+  │   ├── imagelayer  → 背景图（ParallaxComponent）
+  │   ├── tilelayer   → 格子层（TileLayerComponent, 碰撞检测用）
+  │   └── objectgroup → 游戏对象（玩家、敌人、物品等）
+  │
+  └── 每个 object 的处理：
+      ├── TransformComponent（位置/缩放/旋转）
+      ├── SpriteComponent（纹理+渲染）
+      ├── ColliderComponent + PhysicsComponent（碰撞，如果有）
+      ├── AudioComponent（如果在 Tiled 里配了 "sound" 属性）
+      ├── 动画（如果在 Tiled 里配了 "animation" 属性）
+      └── tag / gravity 等自定义属性
